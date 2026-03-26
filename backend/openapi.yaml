@@ -1,0 +1,268 @@
+openapi: 3.0.3
+info:
+  title: GitHub Project Visualizer API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /api/repo/{owner}/{repo}:
+    get:
+      summary: Get repository overview
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Repository info
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/commits:
+    get:
+      summary: Get commit history
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of commits
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/contributors:
+    get:
+      summary: Get contributors
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of contributors
+        "404":
+          description: Repo not found
+  /api/repo/{owner}/{repo}/languages:
+    get:
+      summary: Get language breakdown
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Language percentages
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/issues:
+    get:
+      summary: Get issues
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [open, closed, all]
+      responses:
+        "200":
+          description: List of issues
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/pulls:
+    get:
+      summary: Get pull requests
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [open, closed, all]
+      responses:
+        "200":
+          description: List of pull requests
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/branches:
+    get:
+      summary: Get all branches
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of branches
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/tags:
+    get:
+      summary: Get all tags and releases
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of tags
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/activity:
+    get:
+      summary: Get commit activity over time
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Weekly commit frequency data
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/issue-stats:
+    get:
+      summary: Get aggregated issue statistics
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Open vs closed counts, label distribution
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/tree:
+    get:
+      summary: Get repository file and folder tree
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Directory and file structure
+        "404":
+          description: Repo not found
+
+  /api/repo/{owner}/{repo}/stargazers:
+    get:
+      summary: Get users who starred the repo
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of stargazers
+        "404":
+          description: Repo not found
+
+  /api/rate-limit:
+    get:
+      summary: Get current GitHub API rate limit status
+      responses:
+        "200":
+          description: Remaining requests and reset time
+        "401":
+          description: Unauthorized
