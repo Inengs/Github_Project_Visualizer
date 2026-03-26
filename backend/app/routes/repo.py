@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.repo import RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
+from app.services.repository_store import save_repo_snapshot
 
 router = APIRouter(prefix="/repo", tags=["repo"])
 
@@ -39,7 +40,7 @@ async def get_repo(
         topics = []
     topics = [t for t in topics if isinstance(t, str)]
 
-    return RepoResponse(
+    result = RepoResponse(
         name=str(payload.get("name") or ""),
         description=payload.get("description") if isinstance(payload.get("description"), str) else None,
         stars=int(payload.get("stargazers_count") or 0),
@@ -47,4 +48,6 @@ async def get_repo(
         language=payload.get("language") if isinstance(payload.get("language"), str) else None,
         topics=topics,
     )
+    await save_repo_snapshot(owner, repo, result)
+    return result
 
