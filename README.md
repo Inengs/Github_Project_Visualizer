@@ -19,6 +19,22 @@ Built with **FastAPI** on the backend and **React** on the frontend.
 
 ---
 
+## 🎯 Target Users
+
+- Open-source maintainers
+- Engineering managers
+- Contributors
+
+---
+
+## 💡 Common Use Cases
+
+- "Is this repo active or dead?"
+- "Who are the key contributors?"
+- "Are issues being resolved quickly?"
+
+---
+
 ## 🗂️ Project Structure
 
 ```
