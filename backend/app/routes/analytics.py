@@ -13,7 +13,6 @@ from app.dependencies import get_github_client
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
-
 @router.get("/repo/{owner}/{repo}", response_model=RepoAnalyticsResponse)
 async def repo_analytics(owner: str, repo: str) -> RepoAnalyticsResponse:
     """
