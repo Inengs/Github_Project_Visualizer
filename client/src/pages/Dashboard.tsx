@@ -6,15 +6,19 @@ import StatsStrip from "../components/dashboard/StatsStrip";
 import CommitActivityChart from "../components/dashboard/CommitActivityChart";
 import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
 
-const OWNER = "zikmang";
-const REPO = "Git Visualizer";
-
 export default function Dashboard() {
+  const [owner, setOwner] = useState("zikmang");
+  const [repo, setRepo] = useState("Git Visualizer");
   const [activeTab, setActiveTab] = useState("Overview");
   const { data, loading, error, range, setRange, refetch } = useRepoData(
-    OWNER,
-    REPO,
+    owner,
+    repo,
   );
+
+  const handleSearch = (newOwner: string, newRepo: string) => {
+    setOwner(newOwner);
+    setRepo(newRepo);
+  };
 
   if (error) {
     return (
@@ -35,8 +39,8 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen bg-[#080808] overflow-hidden">
       <Sidebar
-        owner={OWNER}
-        repo={REPO}
+        owner={owner}
+        repo={repo}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
@@ -44,10 +48,11 @@ export default function Dashboard() {
       <div className="flex flex-col flex-1 overflow-hidden">
         <NavBar
           title={activeTab}
-          subtitle={`${OWNER} / ${REPO} · ${data?.commitActivity?.range ?? "..."} `}
+          subtitle={`${owner} / ${repo} · ${data?.commitActivity?.range ?? "..."} `}
           range={range}
           onRangeChange={setRange}
           onRefresh={refetch}
+          onSearch={handleSearch}
         />
 
         <main className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-4">
