@@ -3,7 +3,7 @@ import type { Range } from "../../types/type";
 
 const RANGES: Range[] = ["7d", "30d", "90d", "1y"];
 
-interface TopbarProps {
+interface NavBarProps {
   title: string;
   subtitle: string;
   range: Range;
@@ -11,13 +11,13 @@ interface TopbarProps {
   onRefresh: () => void;
 }
 
-export default function Topbar({
+export default function NavBar({
   title,
   subtitle,
   range,
   onRangeChange,
   onRefresh,
-}: TopbarProps) {
+}: NavBarProps) {
   return (
     <header className="flex items-center justify-between px-6 py-3.5 border-b border-[#161616] bg-[#080808]">
       <div>
@@ -25,7 +25,7 @@ export default function Topbar({
         <p className="text-[11px] text-[#333] mt-0.5">{subtitle}</p>
       </div>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-3">
         {RANGES.map((r) => (
           <button
             key={r}
@@ -44,13 +44,24 @@ export default function Topbar({
         <button
           onClick={onRefresh}
           title="Refresh data"
-          className="w-7 h-7 flex items-center justify-center border border-[#1a1a1a] rounded-[5px] ml-1 hover:border-[#2a2a2a] hover:bg-[#111] transition-all duration-150 group"
+          className="w-7 h-7 flex items-center justify-center border border-[#1a1a1a] rounded-[5px] hover:border-[#2a2a2a] hover:bg-[#111] transition-all duration-150 group"
         >
           <RefreshCw
             size={11}
             className="text-[#444] group-hover:text-[#888] transition-colors"
           />
         </button>
+
+        <div className="w-[1px] h-4 bg-[#1a1a1a]" />
+
+        <div className="flex items-center gap-2 cursor-pointer group">
+          <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#222] flex items-center justify-center text-[10px] text-[#666] group-hover:border-[#333] transition-colors">
+            ZK
+          </div>
+          <span className="text-[11px] text-[#555] group-hover:text-[#888] transition-colors">
+            Zik
+          </span>
+        </div>
       </div>
     </header>
   );

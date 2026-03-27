@@ -106,16 +106,6 @@ export default function Sidebar({
           </div>
         ))}
       </nav>
-
-      {/* User */}
-      <div className="px-[18px] pt-3 pb-5 border-t border-[#161616]">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-[#1a1a1a] border border-[#222] flex items-center justify-center text-[9px] text-[#666] flex-shrink-0">
-            ZK
-          </div>
-          <span className="text-[11px] text-[#555]">Zik</span>
-        </div>
-      </div>
     </aside>
   );
 }
