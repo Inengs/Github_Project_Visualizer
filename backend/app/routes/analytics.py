@@ -1,11 +1,22 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from collections.abc import AsyncGenerator
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.analytics import RepoAnalyticsResponse
+from app.schemas.insights import InsightsSummaryResponse
+from app.services.github import GitHubApiError, GitHubClient
+from app.services.insights import build_insights_summary
 from app.services.repository_analytics import get_repo_analytics
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
+
+
+async def get_github_client() -> AsyncGenerator[GitHubClient, None]:
+    async with GitHubClient() as client:
+        yield client
 
 
 @router.get("/repo/{owner}/{repo}", response_model=RepoAnalyticsResponse)
@@ -27,4 +38,28 @@ async def repo_analytics(owner: str, repo: str) -> RepoAnalyticsResponse:
     if analytics is None:
         raise HTTPException(status_code=404, detail="No stored repository snapshots for this repo yet.")
     return analytics
+
+
+@router.get("/repo/{owner}/{repo}/insights", response_model=InsightsSummaryResponse)
+async def repo_insights(
+    owner: str,
+    repo: str,
+    gh: GitHubClient = Depends(get_github_client),
+) -> InsightsSummaryResponse:
+    # Insights depend on stored trend context (stars_delta), so require
+    # at least one fetched snapshot from /api/repo/{owner}/{repo}.
+    analytics = await get_repo_analytics(owner, repo)
+    if analytics is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No stored repository snapshots for this repo yet. Fetch /api/repo/{owner}/{repo} first.",
+        )
+
+    try:
+        # Combine DB trend data with live GitHub signals (issues/PRs).
+        return await build_insights_summary(owner, repo, github_client=gh, stars_delta=analytics.stars_delta)
+    except GitHubApiError as e:
+        raise HTTPException(status_code=e.status_code or 502, detail=e.message) from e
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=str(e)) from e
 
