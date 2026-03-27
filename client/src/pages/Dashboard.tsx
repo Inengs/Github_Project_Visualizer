@@ -4,6 +4,7 @@ import Sidebar from "../components/layout/Sidebar";
 import NavBar from "../components/layout/NavBar";
 import StatsStrip from "../components/dashboard/StatsStrip";
 import CommitActivityChart from "../components/dashboard/CommitActivityChart";
+import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
 
 const OWNER = "zikmang";
 const REPO = "Git Visualizer";
@@ -54,6 +55,10 @@ export default function Dashboard() {
 
           <CommitActivityChart
             data={loading ? null : (data?.commitActivity ?? null)}
+          />
+
+          <CommitsPerDayChart
+            data={loading ? null : (data?.commitsPerDay ?? null)}
           />
         </main>
       </div>
