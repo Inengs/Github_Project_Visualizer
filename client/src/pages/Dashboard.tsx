@@ -5,6 +5,8 @@ import NavBar from "../components/layout/NavBar";
 import StatsStrip from "../components/dashboard/StatsStrip";
 import CommitActivityChart from "../components/dashboard/CommitActivityChart";
 import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
+import HealthScoreCard from "../components/dashboard/HealthScoreCard";
+import ContributorsCard from "../components/dashboard/ContributorsCard";
 
 export default function Dashboard() {
   const [owner, setOwner] = useState("zikmang");
@@ -64,6 +66,13 @@ export default function Dashboard() {
 
           <CommitsPerDayChart
             data={loading ? null : (data?.commitsPerDay ?? null)}
+          />
+          <ContributorsCard
+            data={loading ? null : (data?.contributors ?? null)}
+          />
+
+          <HealthScoreCard
+            data={loading ? null : (data?.healthScore ?? null)}
           />
         </main>
       </div>
