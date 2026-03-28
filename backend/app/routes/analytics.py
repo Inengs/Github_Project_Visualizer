@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
-
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -10,13 +8,9 @@ from app.schemas.insights import InsightsSummaryResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.insights import build_insights_summary
 from app.services.repository_analytics import get_repo_analytics
+from app.dependencies import get_github_client
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
-
-
-async def get_github_client() -> AsyncGenerator[GitHubClient, None]:
-    async with GitHubClient() as client:
-        yield client
 
 
 @router.get("/repo/{owner}/{repo}", response_model=RepoAnalyticsResponse)

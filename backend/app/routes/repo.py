@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
 from typing import Any
 
 import httpx
@@ -9,18 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.repo import RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.repository_store import save_repo_snapshot
+from app.dependencies import get_github_client
 
 router = APIRouter(prefix="/repo", tags=["repo"])
-
-
-async def get_github_client() -> AsyncGenerator[GitHubClient, None]:
-    """
-    FastAPI dependency that provides a GitHubClient for the duration of a request.
-    Uses an async context manager so the underlying HTTP connection is properly closed
-    after the request finishes.
-    """
-    async with GitHubClient() as client:
-        yield client
 
 
 @router.get("/{owner}/{repo}", response_model=RepoResponse)
