@@ -67,7 +67,6 @@ export default function Sidebar({ owner, repo }: SidebarProps) {
 
   return (
     <aside className="w-[220px] flex-shrink-0 flex flex-col bg-[#080808] border-r border-[#161616]">
-      {/* Brand */}
       <div className="flex items-center gap-2.5 px-[18px] py-5 border-b border-[#161616]">
         <svg width="16" height="14" viewBox="0 0 76 65" fill="#e1e1e1">
           <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
@@ -77,7 +76,6 @@ export default function Sidebar({ owner, repo }: SidebarProps) {
         </span>
       </div>
 
-      {/* Repo pill */}
       <div className="mx-2.5 mt-3 mb-1 px-3 py-2.5 bg-[#111] border border-[#1a1a1a] rounded-lg">
         <p className="text-[12px] font-medium text-[#e1e1e1] truncate">
           {owner} / {repo}
@@ -88,7 +86,6 @@ export default function Sidebar({ owner, repo }: SidebarProps) {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-1">
         {NAV_SECTIONS.map(({ section, items }) => (
           <div key={section}>
