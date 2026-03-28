@@ -9,6 +9,7 @@ from app.schemas.insights import InsightsSummaryResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.insights import build_insights_summary
 from app.services.repository_analytics import get_repo_analytics
+from app.dependencies import get_github_client
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 

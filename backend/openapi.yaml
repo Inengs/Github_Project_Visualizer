@@ -305,3 +305,45 @@ paths:
           description: Remaining requests and reset time
         "401":
           description: Unauthorized
+
+  /api/analytics/repo/{owner}/{repo}:
+    get:
+      summary: Get repository analytics from stored snapshots
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Latest and previous snapshot with stars/forks deltas
+        "404":
+          description: No snapshots found for this repo
+
+  /api/analytics/repo/{owner}/{repo}/insights:
+    get:
+      summary: Get repository health score and risk signals
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Health score, activity trend, and risk signals
+        "404":
+          description: No snapshots found for this repo
+        "502":
+          description: GitHub API error

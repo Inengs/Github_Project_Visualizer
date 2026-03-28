@@ -9,6 +9,7 @@ from app.deps.github_client import get_github_client
 from app.schemas.repo import RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.repository_store import save_repo_snapshot
+from app.dependencies import get_github_client
 
 router = APIRouter(prefix="/repo", tags=["repo"])
 
