@@ -23,3 +23,16 @@ DATABASE_URL: str | None = os.getenv("DATABASE_URL")
 JWT_SECRET: str | None = os.getenv("JWT_SECRET")
 JWT_ALGORITHM: str = "HS256"
 JWT_EXPIRE_SECONDS: int = int(os.getenv("JWT_EXPIRE_SECONDS", "604800"))
+
+# --- Redis cache (GitHub API) — set REDIS_URL to enable ---
+REDIS_URL: str | None = os.getenv("REDIS_URL")
+# Fresh window per cache entry (seconds). Clamped to 300–900 (5–15 minutes).
+CACHE_TTL_SECONDS: int = max(300, min(900, int(os.getenv("CACHE_TTL_SECONDS", "600"))))
+# Max age (seconds) we may still return a cached body when GitHub rate-limits us.
+CACHE_STALE_MAX_SECONDS: int = int(os.getenv("CACHE_STALE_MAX_SECONDS", "86400"))
+# Optional Celery worker for cache refresh (broker usually same as Redis).
+ENABLE_CELERY: bool = os.getenv("ENABLE_CELERY", "").lower() in ("1", "true", "yes")
+CELERY_BROKER_URL: str | None = os.getenv("CELERY_BROKER_URL") or REDIS_URL
+CELERY_RESULT_BACKEND: str | None = os.getenv("CELERY_RESULT_BACKEND") or REDIS_URL
+# Simple Redis list queue (RPUSH/BLPOP) when Celery is off; worker: python -m app.workers.redis_refresh_worker
+USE_REDIS_REFRESH_QUEUE: bool = os.getenv("USE_REDIS_REFRESH_QUEUE", "").lower() in ("1", "true", "yes")

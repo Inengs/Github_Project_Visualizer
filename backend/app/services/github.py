@@ -50,6 +50,11 @@ class GitHubClient:
         self._client = client
         self._owns_client = client is None
 
+    @property
+    def access_token(self) -> str | None:
+        """Bearer token used for GitHub (for cache keying and background refresh)."""
+        return self._token
+
     async def __aenter__(self) -> GitHubClient:
         if self._client is None:
             self._client = httpx.AsyncClient(
