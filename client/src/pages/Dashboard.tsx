@@ -1,30 +1,26 @@
-import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { useRepoData } from "../hooks/useRepoData";
-import Sidebar from "../components/layout/Sidebar";
-import NavBar from "../components/layout/NavBar";
+
 import StatsStrip from "../components/dashboard/StatsStrip";
 import CommitActivityChart from "../components/dashboard/CommitActivityChart";
 import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
 import HealthScoreCard from "../components/dashboard/HealthScoreCard";
 import ContributorsCard from "../components/dashboard/ContributorsCard";
+import PullRequestsCard from "../components/dashboard/PullRequestsCard";
+
+type ContextType = {
+  owner: string;
+  repo: string;
+};
 
 export default function Dashboard() {
-  const [owner, setOwner] = useState("zikmang");
-  const [repo, setRepo] = useState("Git Visualizer");
-  const [activeTab, setActiveTab] = useState("Overview");
-  const { data, loading, error, range, setRange, refetch } = useRepoData(
-    owner,
-    repo,
-  );
+  const { owner, repo } = useOutletContext<ContextType>();
 
-  const handleSearch = (newOwner: string, newRepo: string) => {
-    setOwner(newOwner);
-    setRepo(newRepo);
-  };
+  const { data, loading, error, refetch } = useRepoData(owner, repo);
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <p className="text-[#555] text-sm mb-2">Failed to load data</p>
           <p className="text-[#333] text-xs">{error}</p>
@@ -38,44 +34,24 @@ export default function Dashboard() {
       </div>
     );
   }
+
   return (
-    <div className="flex h-screen bg-[#080808] overflow-hidden">
-      <Sidebar
-        owner={owner}
-        repo={repo}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
+    <div className="flex flex-col gap-4">
+      <StatsStrip stats={loading ? null : (data?.stats ?? null)} />
+
+      <CommitActivityChart
+        data={loading ? null : (data?.commitActivity ?? null)}
       />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <NavBar
-          title={activeTab}
-          subtitle={`${owner} / ${repo} · ${data?.commitActivity?.range ?? "..."} `}
-          range={range}
-          onRangeChange={setRange}
-          onRefresh={refetch}
-          onSearch={handleSearch}
-        />
+      <CommitsPerDayChart
+        data={loading ? null : (data?.commitsPerDay ?? null)}
+      />
 
-        <main className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-4">
-          <StatsStrip stats={loading ? null : (data?.stats ?? null)} />
+      <ContributorsCard data={loading ? null : (data?.contributors ?? null)} />
 
-          <CommitActivityChart
-            data={loading ? null : (data?.commitActivity ?? null)}
-          />
+      <HealthScoreCard data={loading ? null : (data?.healthScore ?? null)} />
 
-          <CommitsPerDayChart
-            data={loading ? null : (data?.commitsPerDay ?? null)}
-          />
-          <ContributorsCard
-            data={loading ? null : (data?.contributors ?? null)}
-          />
-
-          <HealthScoreCard
-            data={loading ? null : (data?.healthScore ?? null)}
-          />
-        </main>
-      </div>
+      <PullRequestsCard data={loading ? null : (data?.pullRequests ?? null)} />
     </div>
   );
 }
