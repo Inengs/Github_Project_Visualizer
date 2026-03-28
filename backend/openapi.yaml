@@ -1,3 +1,28 @@
+# =============================================================================
+# FRONTEND / LEAD CONTRACT — do not rename or remove paths without team agreement.
+# -----------------------------------------------------------------------------
+# The FastAPI app serves this file verbatim as GET /openapi.json (see app/openapi_spec.py).
+# Backend implementations must match these paths and methods.
+#
+# CHANGE LOG (for co-developers):
+# - 2026-03: Documented how each path maps to GitHub REST (backend proxies GitHub JSON).
+# - GET /api/repo/{owner}/{repo}/issue-stats returns a small aggregated object
+#   { open_issues, closed_issues, total_issues } via GitHub Search API (not a single
+#   upstream repo endpoint). Frontend should treat this shape as stable.
+# - GET /api/repo/{owner}/{repo}/activity maps to GitHub
+#   GET /repos/{owner}/{repo}/stats/commit_activity; GitHub may respond 202 while
+#   stats build — backend responds with 503 and a clear message in that case.
+# - GET /api/repo/{owner}/{repo}/tree resolves default_branch then returns
+#   GET /repos/{owner}/{repo}/git/trees/{sha}?recursive=1.
+# - Optional query param per_page (1–100, default 30) is accepted on list endpoints
+#   where GitHub supports it; it was not in the original spec — safe for clients to omit.
+#
+# NOT IN THIS FILE (ops / future — not part of the frontend contract until added here):
+# - GET /health — process health only.
+# - Experimental routes may exist in app/routes/ (e.g. analytics, OAuth, favorites) but are
+#   not mounted in main.py until this spec is updated by the lead.
+# =============================================================================
+
 openapi: 3.0.3
 info:
   title: GitHub Project Visualizer API
@@ -7,6 +32,7 @@ servers:
   - url: http://localhost:8000
 
 paths:
+  # Proxies GitHub GET /repos/{owner}/{repo}; response normalized to app RepoResponse for this path only.
   /api/repo/{owner}/{repo}:
     get:
       summary: Get repository overview
@@ -27,6 +53,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/commits
   /api/repo/{owner}/{repo}/commits:
     get:
       summary: Get commit history
@@ -47,6 +74,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/contributors
   /api/repo/{owner}/{repo}/contributors:
     get:
       summary: Get contributors
@@ -66,6 +94,8 @@ paths:
           description: List of contributors
         "404":
           description: Repo not found
+
+  # Proxies GitHub GET /repos/{owner}/{repo}/languages
   /api/repo/{owner}/{repo}/languages:
     get:
       summary: Get language breakdown
@@ -86,6 +116,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/issues
   /api/repo/{owner}/{repo}/issues:
     get:
       summary: Get issues
@@ -112,6 +143,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/pulls
   /api/repo/{owner}/{repo}/pulls:
     get:
       summary: Get pull requests
@@ -138,6 +170,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/branches
   /api/repo/{owner}/{repo}/branches:
     get:
       summary: Get all branches
@@ -158,6 +191,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/tags (tags only; releases are separate upstream)
   /api/repo/{owner}/{repo}/tags:
     get:
       summary: Get all tags and releases
@@ -178,6 +212,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/stats/commit_activity (see header note on 202 → 503)
   /api/repo/{owner}/{repo}/activity:
     get:
       summary: Get commit activity over time
@@ -198,6 +233,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Aggregated via GitHub Search API — response shape { open_issues, closed_issues, total_issues }
   /api/repo/{owner}/{repo}/issue-stats:
     get:
       summary: Get aggregated issue statistics
@@ -218,6 +254,7 @@ paths:
         "404":
           description: Repo not found
 
+  # default_branch → git/trees/{sha}?recursive=1 (see header)
   /api/repo/{owner}/{repo}/tree:
     get:
       summary: Get repository file and folder tree
@@ -238,6 +275,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /repos/{owner}/{repo}/stargazers
   /api/repo/{owner}/{repo}/stargazers:
     get:
       summary: Get users who starred the repo
@@ -258,6 +296,7 @@ paths:
         "404":
           description: Repo not found
 
+  # Proxies GitHub GET /rate_limit (authenticated as server PAT or user token when wired)
   /api/rate-limit:
     get:
       summary: Get current GitHub API rate limit status

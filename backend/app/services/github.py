@@ -148,3 +148,18 @@ class GitHubClient:
                 response_text=resp.text,
             ) from e
 
+    async def get_response(
+        self,
+        url: str,
+        *,
+        params: dict[str, Any] | None = None,
+    ) -> httpx.Response:
+        """Raw GET for endpoints that may return 202 (e.g. repo statistics)."""
+        if self._client is None:
+            async with self:
+                return await self.get_response(url, params=params)
+        try:
+            return await self._client.get(url, params=params)
+        except (httpx.TimeoutException, httpx.NetworkError) as e:
+            raise GitHubApiError(status_code=None, message=str(e), url=url) from e
+

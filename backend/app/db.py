@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import AsyncGenerator
 
-from sqlalchemy import DateTime, Integer, String, Text, func, select
+from fastapi import HTTPException
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import JSON
@@ -53,6 +54,37 @@ class RepositorySnapshot(Base):
         index=True,
     )
 
+
+class User(Base):
+    """
+    Local user row after GitHub OAuth. Stores the user's GitHub access token
+    so API calls can use it for private repositories (repo scope).
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    github_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    login: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    github_access_token: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+
+class FavoriteRepo(Base):
+    """Per-user saved repositories (requires login)."""
+
+    __tablename__ = "favorite_repos"
+    __table_args__ = (UniqueConstraint("user_id", "owner", "repo", name="uq_favorite_user_repo"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    owner: Mapped[str] = mapped_column(String(255), nullable=False)
+    repo: Mapped[str] = mapped_column(String(255), nullable=False)
+
+
 # Create the async engine once at module load time.
 # If DATABASE_URL is not set, the engine is None and all DB operations are skipped.
 _engine: AsyncEngine | None = (
@@ -90,6 +122,23 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
     if _sessionmaker is None:
         raise RuntimeError("Database is not configured (set DATABASE_URL).")
 
+    async with _sessionmaker() as session:
+        yield session
+
+
+async def get_optional_session() -> AsyncGenerator[AsyncSession | None, None]:
+    """Yields None when DATABASE_URL is unset so public routes can skip JWT user lookup."""
+    if _sessionmaker is None:
+        yield None
+        return
+    async with _sessionmaker() as session:
+        yield session
+
+
+async def get_session_required() -> AsyncGenerator[AsyncSession, None]:
+    """Same as get_session but returns HTTP 503 instead of raising RuntimeError (for API responses)."""
+    if _sessionmaker is None:
+        raise HTTPException(status_code=503, detail="Database is not configured (set DATABASE_URL).")
     async with _sessionmaker() as session:
         yield session
 
