@@ -1,9 +1,4 @@
-import DashboardLayout from "./components/layout/DashboardLayout";
-
+import Dashboard from "./pages/Dashboard";
 export default function App() {
-  return (
-    <DashboardLayout>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-    </DashboardLayout>
-  );
+  return <Dashboard />;
 }
