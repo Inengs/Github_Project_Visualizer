@@ -7,6 +7,7 @@ import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
 import HealthScoreCard from "../components/dashboard/HealthScoreCard";
 import ContributorsCard from "../components/dashboard/ContributorsCard";
 import PullRequestsCard from "../components/dashboard/PullRequestsCard";
+import IssuesCard from "../components/dashboard/IssuesCard";
 
 type ContextType = {
   owner: string;
@@ -52,6 +53,8 @@ export default function Dashboard() {
       <HealthScoreCard data={loading ? null : (data?.healthScore ?? null)} />
 
       <PullRequestsCard data={loading ? null : (data?.pullRequests ?? null)} />
+
+      <IssuesCard data={loading ? null : (data?.issues ?? null)} />
     </div>
   );
 }

@@ -69,18 +69,22 @@ export default function StatsStrip({ stats }: StatsStripProps) {
       {cards.map(({ key, label, value, delta, deltaType, icon: Icon }) => (
         <div
           key={key}
-          className="bg-[#0d0d0d] border border-[#161616] rounded-lg px-[18px] py-4 hover:border-[#222] transition-colors duration-200"
+          className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg px-[18px] py-4 hover:border-gray-300 dark:hover:border-[#222] transition-colors duration-200"
         >
           <div className="flex items-start justify-between mb-2.5">
-            <span className="text-[10px] text-[#3a3a3a] uppercase tracking-[.05em]">
+            <span className="text-[10px] text-gray-400 dark:text-[#3a3a3a] uppercase tracking-[.05em]">
               {label}
             </span>
-            <div className="w-6 h-6 bg-[#111] border border-[#1a1a1a] rounded-[5px] flex items-center justify-center">
-              <Icon size={11} className="text-[#333]" strokeWidth={1.5} />
+            <div className="w-6 h-6 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#1a1a1a] rounded-[5px] flex items-center justify-center">
+              <Icon
+                size={11}
+                className="text-gray-300 dark:text-[#333]"
+                strokeWidth={1.5}
+              />
             </div>
           </div>
 
-          <p className="text-[24px] font-medium text-[#e1e1e1] leading-none tracking-[-0.03em]">
+          <p className="text-[24px] font-medium text-black dark:text-[#e1e1e1] leading-none tracking-[-0.03em]">
             {value}
           </p>
 
@@ -100,7 +104,7 @@ function StatStripSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="bg-[#0d0d0d] border border-[#161616] rounded-lg px-[18px] py-4"
+          className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg px-[18px] py-4"
         >
           <Skeleton className="h-2.5 w-20 mb-3" />
           <Skeleton className="h-6 w-16 mb-2" />
