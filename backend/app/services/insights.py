@@ -93,5 +93,8 @@ async def build_insights_summary(
         ),
         activity_trend=_trend_from_stars_delta(stars_delta),
         risk_signals=risk_signals,
+        closed_prs_sampled=closed_pr_count,
+        merged_prs_sampled=merged_pr_count,
+        merge_rate=round(merge_rate, 3),
     )
 

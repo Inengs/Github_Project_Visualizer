@@ -16,6 +16,8 @@
 #   GET /repos/{owner}/{repo}/git/trees/{sha}?recursive=1.
 # - Optional query param per_page (1–100, default 30) is accepted on list endpoints
 #   where GitHub supports it; it was not in the original spec — safe for clients to omit.
+# - POST /api/repo/{owner}/{repo}/generate-readme returns structured README markdown/HTML
+#   from GitHub data, snapshot deltas when present, and optional OpenAI narrative.
 #
 # NOT IN THIS FILE (ops / future — not part of the frontend contract until added here):
 # - GET /health — process health only.
@@ -295,6 +297,48 @@ paths:
           description: List of stargazers
         "404":
           description: Repo not found
+
+  /api/repo/{owner}/{repo}/generate-readme:
+    post:
+      summary: Generate structured README from repository metrics
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  type: string
+                  default: default
+                export_format:
+                  type: string
+                  enum: [markdown, html, both]
+                  default: both
+                use_openai:
+                  type: boolean
+                  default: false
+                openai_api_key:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          description: Markdown body and optional HTML export
+        "404":
+          description: Repo not found
+        "502":
+          description: GitHub API or auxiliary service error
 
   # Proxies GitHub GET /rate_limit (authenticated as server PAT or user token when wired)
   /api/rate-limit:

@@ -3,12 +3,14 @@ from __future__ import annotations
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 
 from app.deps.github_client import get_github_client
+from app.schemas.readme import GenerateReadmeRequest, GenerateReadmeResponse
 from app.schemas.repo import RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.github_cache import get_commit_activity_cached, get_json_cached
+from app.services.readme_generator import generate_repository_readme
 from app.services.repository_store import save_repo_snapshot
 
 router = APIRouter(prefix="/repo", tags=["repo"])
@@ -240,6 +242,26 @@ async def get_stargazers(
         f"/repos/{owner}/{repo}/stargazers",
         {"per_page": per_page},
     )
+
+
+@router.post("/{owner}/{repo}/generate-readme", response_model=GenerateReadmeResponse)
+async def post_generate_readme(
+    owner: str,
+    repo: str,
+    gh: GitHubClient = Depends(get_github_client),
+    body: GenerateReadmeRequest | None = Body(default=None),
+) -> GenerateReadmeResponse:
+    """
+    Build a structured README from live GitHub data, optional DB snapshots, and heuristics.
+    Optional OpenAI narrative when `use_openai` is true and an API key is supplied (body or server env).
+    """
+    opts = body or GenerateReadmeRequest()
+    try:
+        return await generate_repository_readme(owner, repo, github_client=gh, options=opts)
+    except GitHubApiError as e:
+        raise HTTPException(status_code=e.status_code or 502, detail=e.message) from e
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=str(e)) from e
 
 
 @router.get("/{owner}/{repo}", response_model=RepoResponse)

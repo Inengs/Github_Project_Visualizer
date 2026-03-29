@@ -100,3 +100,20 @@ export interface UseRepoDataReturn {
   setRange: (range: Range) => void;
   refetch: () => void;
 }
+
+export type ReadmeExportFormat = "markdown" | "html" | "both";
+
+export interface GenerateReadmeOptions {
+  template_id?: string;
+  export_format?: ReadmeExportFormat;
+  use_openai?: boolean;
+  openai_api_key?: string | null;
+}
+
+export interface GenerateReadmeResult {
+  markdown: string;
+  html: string | null;
+  template_id: string;
+  used_openai: boolean;
+  pdf_export_hint: string;
+}

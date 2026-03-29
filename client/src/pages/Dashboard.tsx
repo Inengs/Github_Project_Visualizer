@@ -1,4 +1,5 @@
 import { useState } from "react";
+import GenerateReadmeModal from "../components/dashboard/GenerateReadmeModal";
 import { useRepoData } from "../hooks/useRepoData";
 import Sidebar from "../components/layout/Sidebar";
 import NavBar from "../components/layout/NavBar";
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [owner, setOwner] = useState("zikmang");
   const [repo, setRepo] = useState("Git Visualizer");
   const [activeTab, setActiveTab] = useState("Overview");
+  const [readmeModalOpen, setReadmeModalOpen] = useState(false);
   const { data, loading, error, range, setRange, refetch } = useRepoData(
     owner,
     repo,
@@ -55,6 +57,14 @@ export default function Dashboard() {
           onRangeChange={setRange}
           onRefresh={refetch}
           onSearch={handleSearch}
+          onGenerateReadme={() => setReadmeModalOpen(true)}
+        />
+
+        <GenerateReadmeModal
+          open={readmeModalOpen}
+          onClose={() => setReadmeModalOpen(false)}
+          owner={owner}
+          repo={repo}
         />
 
         <main className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-4">
