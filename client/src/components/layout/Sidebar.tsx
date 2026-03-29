@@ -8,9 +8,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { useNavigate, useLocation } from "react-router-dom";
+
 interface NavItem {
   label: string;
   icon: LucideIcon;
+  path: string;
 }
 
 interface NavSection {
@@ -21,38 +24,49 @@ interface NavSection {
 interface SidebarProps {
   owner: string;
   repo: string;
-  activeTab: string;
-  onTabChange: (tab: string) => void;
 }
 
 const NAV_SECTIONS: NavSection[] = [
   {
     section: "Project",
     items: [
-      { label: "Overview", icon: LayoutGrid },
-      { label: "Commits", icon: GitCommitHorizontal },
-      { label: "Issues", icon: CircleDot },
-      { label: "Pull requests", icon: GitPullRequest },
+      { label: "Overview", icon: LayoutGrid, path: "/dashboard" },
+      {
+        label: "Commits",
+        icon: GitCommitHorizontal,
+        path: "/dashboard/commits",
+      },
+      { label: "Issues", icon: CircleDot, path: "/dashboard/issues" },
+      {
+        label: "Pull requests",
+        icon: GitPullRequest,
+        path: "/dashboard/pulls",
+      },
     ],
   },
   {
     section: "Insights",
     items: [
-      { label: "Contributors", icon: Users },
-      { label: "Analytics", icon: BarChart2 },
+      {
+        label: "Contributors",
+        icon: Users,
+        path: "/dashboard/contributors",
+      },
+      {
+        label: "Analytics",
+        icon: BarChart2,
+        path: "/dashboard/analytics",
+      },
     ],
   },
 ];
 
-export default function Sidebar({
-  owner,
-  repo,
-  activeTab,
-  onTabChange,
-}: SidebarProps) {
+export default function Sidebar({ owner, repo }: SidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <aside className="w-[220px] flex-shrink-0 flex flex-col bg-[#080808] border-r border-[#161616]">
-      {/* Brand */}
       <div className="flex items-center gap-2.5 px-[18px] py-5 border-b border-[#161616]">
         <svg width="16" height="14" viewBox="0 0 76 65" fill="#e1e1e1">
           <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
@@ -62,7 +76,6 @@ export default function Sidebar({
         </span>
       </div>
 
-      {/* Repo pill */}
       <div className="mx-2.5 mt-3 mb-1 px-3 py-2.5 bg-[#111] border border-[#1a1a1a] rounded-lg">
         <p className="text-[12px] font-medium text-[#e1e1e1] truncate">
           {owner} / {repo}
@@ -73,23 +86,30 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-1">
         {NAV_SECTIONS.map(({ section, items }) => (
           <div key={section}>
             <p className="text-[10px] text-[#2e2e2e] tracking-[.07em] uppercase px-[18px] pt-4 pb-1.5">
               {section}
             </p>
-            {items.map(({ label, icon: Icon }) => {
-              const isActive = activeTab === label;
+
+            {items.map(({ label, icon: Icon, path }) => {
+              const isActive =
+                location.pathname === path ||
+                (path === "/dashboard" && location.pathname === "/dashboard");
+
               return (
                 <button
                   key={label}
-                  onClick={() => onTabChange(label)}
+                  onClick={() => navigate(path)}
                   className={`
                     flex items-center gap-2.5 w-full px-[18px] py-[7px]
                     text-[12px] text-left transition-colors duration-150
-                    ${isActive ? "text-[#e1e1e1]" : "text-[#555] hover:text-[#aaa]"}
+                    ${
+                      isActive
+                        ? "text-[#e1e1e1]"
+                        : "text-[#555] hover:text-[#aaa]"
+                    }
                   `}
                 >
                   <Icon
