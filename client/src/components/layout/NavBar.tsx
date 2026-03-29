@@ -1,4 +1,5 @@
 import { RefreshCw, Search, FileText } from "lucide-react";
+import { Moon, RefreshCw, Search, Sun } from "lucide-react";
 import type { Range } from "../../types/type";
 import { useState } from "react";
 
@@ -12,6 +13,8 @@ interface NavBarProps {
   onRefresh: () => void;
   onSearch: (owner: string, repo: string) => void;
   onGenerateReadme?: () => void;
+  theme: "dark" | "light";
+  onThemeToggle: () => void;
 }
 
 export default function NavBar({
@@ -22,6 +25,8 @@ export default function NavBar({
   onRefresh,
   onSearch,
   onGenerateReadme,
+  theme,
+  onThemeToggle,
 }: NavBarProps) {
   const [input, setInput] = useState("");
 
@@ -32,15 +37,19 @@ export default function NavBar({
   };
 
   return (
-    <header className="flex items-center justify-between px-6 py-3.5 border-b border-[#161616] bg-[#080808]">
+    <header className="flex items-center justify-between px-6 py-3.5 border-b border-gray-200 dark:border-[#161616] bg-white dark:bg-[#080808]">
       {/* LEFT */}
       <div>
-        <h1 className="text-[13px] font-medium text-[#e1e1e1]">{title}</h1>
-        <p className="text-[11px] text-[#333] mt-0.5">{subtitle}</p>
+        <h1 className="text-[13px] font-medium text-black dark:text-[#e1e1e1]">
+          {title}
+        </h1>
+        <p className="text-[11px] text-gray-400 dark:text-[#333] mt-0.5">
+          {subtitle}
+        </p>
       </div>
 
       {/* CENTER SEARCH */}
-      <div className="flex items-center bg-[#111] border border-[#1a1a1a] rounded-[6px] px-2 py-1.5 w-[320px]">
+      <div className="flex items-center bg-gray-100 dark:bg-[#111] border border-gray-200 dark:border-[#1a1a1a] rounded-[6px] px-2 py-1.5 w-[320px]">
         <Search size={12} className="text-[#444]" />
 
         <input
@@ -61,8 +70,8 @@ export default function NavBar({
             className={`px-2.5 py-1 rounded-[5px] text-[11px] border transition-all duration-150
           ${
             range === r
-              ? "text-[#e1e1e1] border-[#2e2e2e] bg-[#141414]"
-              : "text-[#444] border-[#1a1a1a] bg-transparent hover:text-[#aaa] hover:border-[#252525]"
+              ? "text-black dark:text-[#e1e1e1] border-gray-400 dark:border-[#2e2e2e] bg-gray-100 dark:bg-[#141414]"
+              : "text-gray-400 dark:text-[#444] border-gray-200 dark:border-[#1a1a1a] hover:text-gray-700 dark:hover:text-[#aaa]"
           }`}
           >
             {r}
@@ -93,14 +102,33 @@ export default function NavBar({
         )}
 
         <div className="w-[1px] h-4 bg-[#1a1a1a]" />
+        <button
+          onClick={onThemeToggle}
+          title="Toggle theme"
+          className="w-7 h-7 flex items-center justify-center border border-[#1a1a1a] rounded-[5px] hover:border-[#2a2a2a] hover:bg-[#111] transition-all duration-150 group"
+        >
+          {theme === "dark" ? (
+            <Sun
+              size={11}
+              className="text-[#444] group-hover:text-[#888] transition-colors"
+            />
+          ) : (
+            <Moon
+              size={11}
+              className="text-[#444] group-hover:text-[#888] transition-colors"
+            />
+          )}
+        </button>
+
+        <div className="w-[1px] h-4 bg-gray-200 dark:bg-[#1a1a1a]" />
 
         <div className="flex items-center gap-2 cursor-pointer group">
           <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#222] flex items-center justify-center text-[10px] text-[#666] group-hover:border-[#333] transition-colors">
             ZK
           </div>
-          <span className="text-[11px] text-[#555] group-hover:text-[#888] transition-colors">
+          {/* <span className="text-[11px] text-[#555] group-hover:text-[#888] transition-colors">
             Zik
-          </span>
+          </span> */}
         </div>
       </div>
     </header>

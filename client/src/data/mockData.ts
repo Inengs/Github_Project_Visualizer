@@ -83,11 +83,11 @@ export const mockCommitsPerDay: CommitDay[] = [
 ];
 
 export const mockIssues: Issue[] = [
-  { label: "Closed", count: 380, color: "#e1e1e1", pct: 84 },
-  { label: "Open", count: 238, color: "#444444", pct: 53 },
-  { label: "Bug", count: 82, color: "#7a3030", pct: 36 },
-  { label: "Feature", count: 64, color: "#2e5e3a", pct: 28 },
-  { label: "Docs", count: 42, color: "#2a2a2a", pct: 15 },
+  { label: "Closed", count: 380, color: "#3d9970", pct: 84 },
+  { label: "Open", count: 238, color: "#6b7280", pct: 53 },
+  { label: "Bug", count: 82, color: "#ef4444", pct: 36 },
+  { label: "Feature", count: 64, color: "#3b82f6", pct: 28 },
+  { label: "Docs", count: 42, color: "#f59e0b", pct: 15 },
 ];
 
 export const mockContributors: Contributor[] = [
@@ -208,9 +208,9 @@ export const mockHealthScore: HealthScore = {
   score: 82,
   label: "Good standing",
   breakdown: [
-    { label: "Activity", value: 92, color: "#e1e1e1" },
-    { label: "Issues", value: 70, color: "#555555" },
-    { label: "PR rate", value: 84, color: "#e1e1e1" },
-    { label: "Docs", value: 60, color: "#333333" },
+    { label: "Activity", value: 92, color: "#3d9970" },
+    { label: "Issues", value: 70, color: "#f59e0b" },
+    { label: "PR rate", value: 84, color: "#3d9970" },
+    { label: "Docs", value: 60, color: "#6b7280" },
   ],
 };

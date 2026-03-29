@@ -22,8 +22,8 @@ interface ChartPoint {
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#111] border border-[#222] rounded-md px-3 py-2">
-      <p className="text-[13px] font-medium text-[#e1e1e1]">
+    <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-md px-3 py-2 shadow-sm">
+      <p className="text-[13px] font-medium text-black dark:text-[#e1e1e1]">
         {payload[0].value} commits
       </p>
     </div>
@@ -40,28 +40,30 @@ export default function CommitActivityChart({
     commits: value,
   }));
 
-  const dateIndices = data.dates.map((_, i) =>
-    Math.round((i / (data.dates.length - 1)) * (data.points.length - 1)),
-  );
+  // const dateIndices = data.dates.map((_, i) =>
+  //   Math.round((i / (data.dates.length - 1)) * (data.points.length - 1)),
+  // );
 
-  const tickFormatter = (index: number): string => {
-    const pos = dateIndices.indexOf(index);
-    return pos !== -1 ? data.dates[pos] : "";
-  };
+  // const tickFormatter = (index: number): string => {
+  //   const pos = dateIndices.indexOf(index);
+  //   return pos !== -1 ? data.dates[pos] : "";
+  // };
 
   return (
-    <div className="bg-[#0d0d0d] border border-[#161616] rounded-lg px-4 sm:px-5 pt-5 pb-4">
+    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg px-4 sm:px-5 pt-5 pb-4">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <p className="text-[11px] text-[#555] mb-1">Commit activity</p>
-          <p className="text-[18px] sm:text-[20px] font-medium text-[#e1e1e1] tracking-[-0.02em]">
+          <p className="text-[11px] text-gray-400 dark:text-[#555] mb-1">
+            Commit activity
+          </p>
+          <p className="text-[18px] sm:text-[20px] font-medium text-black dark:text-[#e1e1e1] tracking-[-0.02em]">
             {data.total.toLocaleString()} commits
           </p>
           <p className="text-[10px] text-[#3d9970] mt-1">
             ↑ {data.change} from last period
           </p>
         </div>
-        <span className="text-[10px] text-[#2a2a2a] mt-1 hidden sm:block">
+        <span className="text-[10px] text-gray-300 dark:text-[#2a2a2a] mt-1 hidden sm:block">
           {data.range}
         </span>
       </div>
@@ -73,28 +75,44 @@ export default function CommitActivityChart({
         >
           <defs>
             <linearGradient id="commitGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#d0d0d0" stopOpacity={0.1} />
-              <stop offset="70%" stopColor="#d0d0d0" stopOpacity={0.03} />
-              <stop offset="100%" stopColor="#d0d0d0" stopOpacity={0} />
+              <stop
+                offset="0%"
+                stopColor="var(--color-chart-fill)"
+                stopOpacity={0.12}
+              />
+              <stop
+                offset="70%"
+                stopColor="var(--color-chart-fill)"
+                stopOpacity={0.03}
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--color-chart-fill)"
+                stopOpacity={0}
+              />
             </linearGradient>
           </defs>
 
-          <CartesianGrid horizontal vertical={false} stroke="#141414" />
+          <CartesianGrid
+            horizontal
+            vertical={false}
+            stroke="var(--color-border)"
+          />
 
           <XAxis
-            dataKey="label"
-            tickFormatter={tickFormatter}
-            tick={{ fontSize: 10, fill: "#282828", fontFamily: "inherit" }}
-            axisLine={false}
-            tickLine={false}
-            interval={0}
+            tick={{
+              fontSize: 10,
+              fill: "var(--color-text-dim)",
+              fontFamily: "inherit",
+            }}
           />
 
           <YAxis
-            tick={{ fontSize: 9, fill: "#242424", fontFamily: "inherit" }}
-            axisLine={false}
-            tickLine={false}
-            width={24}
+            tick={{
+              fontSize: 9,
+              fill: "var(--color-text-dim)",
+              fontFamily: "inherit",
+            }}
           />
 
           <Tooltip
@@ -105,7 +123,7 @@ export default function CommitActivityChart({
           <Area
             type="monotone"
             dataKey="commits"
-            stroke="#aaaaaa"
+            stroke="var(--color-chart-line)"
             strokeWidth={1.5}
             fill="url(#commitGradient)"
             dot={false}
@@ -121,7 +139,7 @@ export default function CommitActivityChart({
 
 function ChartSkeleton() {
   return (
-    <div className="bg-[#0d0d0d] border border-[#161616] rounded-lg px-5 pt-5 pb-4">
+    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg px-[18px] py-4">
       <Skeleton className="h-3 w-28 mb-2" />
       <Skeleton className="h-5 w-36 mb-1" />
       <Skeleton className="h-2.5 w-24 mt-1 mb-6" />

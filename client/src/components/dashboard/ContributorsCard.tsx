@@ -9,20 +9,24 @@ export default function ContributorsCard({ data }: ContributorsCardProps) {
   if (!data) return <CardSkeleton />;
 
   return (
-    <div className="bg-[#0d0d0d] border border-[#161616] rounded-lg p-[18px] hover:border-[#1f1f1f] transition-colors duration-200">
-      <p className="text-[10px] text-[#3a3a3a] uppercase tracking-[.05em] mb-1">
+    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg p-[18px] hover:border-gray-300 dark:hover:border-[#1f1f1f] transition-colors duration-200">
+      <p className="text-[10px] text-gray-400 dark:text-[#3a3a3a] uppercase tracking-[.05em] mb-1">
         Contributors
       </p>
-      <p className="text-[17px] font-medium text-[#e1e1e1] tracking-[-0.02em]">
+      <p className="text-[17px] font-medium text-black dark:text-[#e1e1e1] tracking-[-0.02em]">
         3,100
       </p>
-      <p className="text-[10px] text-[#3a3a3a] mt-0.5 mb-3.5">all time</p>
+      <p className="text-[10px] text-gray-400 dark:text-[#3a3a3a] mt-0.5 mb-3.5">
+        all time
+      </p>
 
       <div className="flex flex-col gap-2.5">
         {data.map((c) => (
           <div
             key={c.name}
-            className="flex items-center gap-2.5 py-0.5 rounded-[5px] transition-all duration-150 hover:bg-[#111] hover:px-1.5 hover:-mx-1.5 cursor-default"
+            className="flex items-center gap-2.5 py-0.5 rounded-[5px] transition-all duration-150 
+              hover:bg-gray-100 dark:hover:bg-[#111] 
+              hover:px-1.5 hover:-mx-1.5 cursor-default"
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-medium flex-shrink-0 border border-[#1e1e1e]"
@@ -30,16 +34,19 @@ export default function ContributorsCard({ data }: ContributorsCardProps) {
             >
               {c.initials}
             </div>
-            <span className="text-[11px] text-[#666] flex-1 font-mono truncate">
+            <span className="text-[11px] text-gray-500 dark:text-[#666] flex-1 font-mono truncate">
               {c.name}
             </span>
-            <div className="w-14 h-[1px] bg-[#161616] rounded-sm overflow-hidden flex-shrink-0">
+            <div className="w-14 h-[1px] bg-gray-200 dark:bg-[#161616] rounded-sm overflow-hidden flex-shrink-0">
               <div
-                className="h-[1px] bg-[#e1e1e1] transition-all duration-700 ease-out"
-                style={{ width: `${c.pct}%` }}
+                className="h-[1px] transition-all duration-700 ease-out"
+                style={{
+                  width: `${c.pct}%`,
+                  background: "var(--color-contrib-bar)",
+                }}
               />
             </div>
-            <span className="text-[10px] text-[#333] w-6 text-right flex-shrink-0">
+            <span className="text-[10px] text-gray-400 dark:text-[#333] w-6 text-right flex-shrink-0">
               {c.commits}
             </span>
           </div>
@@ -51,7 +58,7 @@ export default function ContributorsCard({ data }: ContributorsCardProps) {
 
 function CardSkeleton() {
   return (
-    <div className="bg-[#0d0d0d] border border-[#161616] rounded-lg p-[18px]">
+    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg px-[18px] py-4">
       <Skeleton className="h-2.5 w-16 mb-2" />
       <Skeleton className="h-4 w-10 mb-4" />
       {Array.from({ length: 5 }).map((_, i) => (
