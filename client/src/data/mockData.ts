@@ -12,13 +12,12 @@ import type {
 } from "../types/type";
 
 export const mockRepo: Repo = {
-  name: "zikmang",
-  owner: "github",
+  name: "Inengs",
   description: "The React Framework for the Web",
   language: "JavaScript",
   stars: 118000,
   forks: 24800,
-  health_score: 82,
+  topics: ["react", "typescript", "dashboard", "github"],
 };
 
 export const mockStats: Stats = {
@@ -205,12 +204,7 @@ export const mockActivity: ActivityItem[] = [
 ];
 
 export const mockHealthScore: HealthScore = {
-  score: 82,
-  label: "Good standing",
-  breakdown: [
-    { label: "Activity", value: 92, color: "#3d9970" },
-    { label: "Issues", value: 70, color: "#f59e0b" },
-    { label: "PR rate", value: 84, color: "#3d9970" },
-    { label: "Docs", value: 60, color: "#6b7280" },
-  ],
+  repo_health_score: 82,
+  activity_trend: "increasing",
+  risk_signals: ["low documentation", "no recent releases"],
 };

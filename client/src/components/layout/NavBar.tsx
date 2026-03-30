@@ -1,5 +1,5 @@
 import { RefreshCw, Search, FileText } from "lucide-react";
-import { Moon, RefreshCw, Search, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import type { Range } from "../../types/type";
 import { useState } from "react";
 
@@ -12,9 +12,9 @@ interface NavBarProps {
   onRangeChange: (range: Range) => void;
   onRefresh: () => void;
   onSearch: (owner: string, repo: string) => void;
-  onGenerateReadme?: () => void;
   theme: "dark" | "light";
   onThemeToggle: () => void;
+  onGenerateReadme: () => void;
 }
 
 export default function NavBar({

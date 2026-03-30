@@ -16,18 +16,15 @@ import type {
 } from "../types/type";
 
 import {
-  // mockRepo,
   mockStats,
-  // mockCommitActivity,
   mockCommitsPerDay,
-  // mockIssues,
-  // mockContributors,
-  // mockPullRequests,
+  mockIssues,
+  mockContributors,
+  mockPullRequests,
   mockActivity,
-  // mockHealthScore,
 } from "../data/mockData";
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8000/api",
@@ -44,12 +41,11 @@ export async function fetchRepoOverview(
   const { data } = await api.get(`/repo/${owner}/${repo}`);
   return {
     name: data.name,
-    owner,
-    description: data.description ?? "",
-    language: data.language ?? "",
+    description: data.description ?? null,
+    language: data.language ?? null,
     stars: data.stars,
     forks: data.forks,
-    health_score: 0, // comes from /analytics endpoint separately
+    topics: data.topics ?? [],
   };
 }
 
@@ -100,6 +96,7 @@ export async function fetchIssues(
   owner: string,
   repo: string,
 ): Promise<Issue[]> {
+  if (USE_MOCK) return fakeFetch(mockIssues);
   const { data } = await api.get(`/repo/${owner}/${repo}/issue-stats`);
   const total = data.total_issues || 1;
   return [
@@ -122,6 +119,7 @@ export async function fetchContributors(
   owner: string,
   repo: string,
 ): Promise<Contributor[]> {
+  if (USE_MOCK) return fakeFetch(mockContributors);
   const { data } = await api.get(`/repo/${owner}/${repo}/contributors`);
   const max = data[0]?.contributions ?? 1;
   return data.slice(0, 5).map((c: any) => ({
@@ -138,8 +136,9 @@ export async function fetchPullRequests(
   owner: string,
   repo: string,
 ): Promise<PullRequest[]> {
+  if (USE_MOCK) return fakeFetch(mockPullRequests);
   const { data } = await api.get(`/repo/${owner}/${repo}/pulls`, {
-    params: { state: "all", per_page: 10 },
+    params: { state: "all" },
   });
   return data.map((pr: any) => ({
     id: `#${pr.number}`,
@@ -167,13 +166,9 @@ export async function fetchHealthScore(
 ): Promise<HealthScore> {
   const { data } = await api.get(`/analytics/repo/${owner}/${repo}/insights`);
   return {
-    score: data.repo_health_score,
-    label: data.activity_trend,
-    breakdown: data.risk_signals.map((s: string, i: number) => ({
-      label: s,
-      value: 100 - i * 15,
-      color: "#3d9970",
-    })),
+    repo_health_score: data.repo_health_score,
+    activity_trend: data.activity_trend,
+    risk_signals: data.risk_signals,
   };
 }
 

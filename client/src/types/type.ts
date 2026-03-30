@@ -1,13 +1,20 @@
 export interface Repo {
   name: string;
-  owner: string;
-  description: string;
-  language: string;
+  description: string | null;
   stars: number;
   forks: number;
-  health_score: number;
+  language: string | null;
+  topics: string[];
 }
 
+export interface RepoAnalytics {
+  owner: string;
+  repo: string;
+  latest: Repo;
+  previous: Repo | null;
+  stars_delta: number;
+  forks_delta: number;
+}
 export interface Stats {
   total_commits: number;
   open_issues: number;
@@ -60,9 +67,9 @@ export interface HealthBreakdown {
 }
 
 export interface HealthScore {
-  score: number;
-  label: string;
-  breakdown: HealthBreakdown[];
+  repo_health_score: number;
+  activity_trend: string;
+  risk_signals: string[];
 }
 
 export interface Contributor {

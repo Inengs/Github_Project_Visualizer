@@ -1,8 +1,5 @@
-import { useState } from "react";
-import GenerateReadmeModal from "../components/dashboard/GenerateReadmeModal";
 import { useOutletContext } from "react-router-dom";
-// import { useRepoData } from "../hooks/useRepoData";
-
+import GenerateReadmeModal from "../components/dashboard/GenerateReadmeModal";
 import StatsStrip from "../components/dashboard/StatsStrip";
 import CommitActivityChart from "../components/dashboard/CommitActivityChart";
 import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
@@ -21,13 +18,21 @@ type ContextType = {
   range: Range;
   setRange: (r: Range) => void;
   refetch: () => void;
+  readmeModalOpen: boolean;
+  setReadmeModalOpen: (open: boolean) => void;
 };
 
 export default function Dashboard() {
-  const { data, loading, error, refetch } = useOutletContext<ContextType>();
-
-  // const { data, loading, error, refetch } = useRepoData(owner, repo);
-
+  const {
+    owner,
+    repo,
+    data,
+    loading,
+    error,
+    refetch,
+    readmeModalOpen,
+    setReadmeModalOpen,
+  } = useOutletContext<ContextType>();
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -53,34 +58,30 @@ export default function Dashboard() {
         data={loading ? null : (data?.commitActivity ?? null)}
       />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <NavBar
-          title={activeTab}
-          subtitle={`${owner} / ${repo} · ${data?.commitActivity?.range ?? "..."} `}
-          range={range}
-          onRangeChange={setRange}
-          onRefresh={refetch}
-          onSearch={handleSearch}
-          onGenerateReadme={() => setReadmeModalOpen(true)}
-        />
-
-        <GenerateReadmeModal
-          open={readmeModalOpen}
-          onClose={() => setReadmeModalOpen(false)}
-          owner={owner}
-          repo={repo}
-        />
       <CommitsPerDayChart
         data={loading ? null : (data?.commitsPerDay ?? null)}
       />
 
-      <ContributorsCard data={loading ? null : (data?.contributors ?? null)} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <IssuesCard data={loading ? null : (data?.issues ?? null)} />
+        <ContributorsCard
+          data={loading ? null : (data?.contributors ?? null)}
+        />
+        <HealthScoreCard data={loading ? null : (data?.healthScore ?? null)} />
+      </div>
 
-      <HealthScoreCard data={loading ? null : (data?.healthScore ?? null)} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <PullRequestsCard
+          data={loading ? null : (data?.pullRequests ?? null)}
+        />
+      </div>
 
-      <PullRequestsCard data={loading ? null : (data?.pullRequests ?? null)} />
-
-      <IssuesCard data={loading ? null : (data?.issues ?? null)} />
+      <GenerateReadmeModal
+        open={readmeModalOpen}
+        onClose={() => setReadmeModalOpen(false)}
+        owner={owner}
+        repo={repo}
+      />
     </div>
   );
 }
