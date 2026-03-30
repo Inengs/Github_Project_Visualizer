@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { useRepoData } from "../hooks/useRepoData";
+// import { useRepoData } from "../hooks/useRepoData";
 
 import StatsStrip from "../components/dashboard/StatsStrip";
 import CommitActivityChart from "../components/dashboard/CommitActivityChart";
@@ -8,16 +8,23 @@ import HealthScoreCard from "../components/dashboard/HealthScoreCard";
 import ContributorsCard from "../components/dashboard/ContributorsCard";
 import PullRequestsCard from "../components/dashboard/PullRequestsCard";
 import IssuesCard from "../components/dashboard/IssuesCard";
+import type { RepoData, Range } from "../types/type";
 
 type ContextType = {
   owner: string;
   repo: string;
+  data: RepoData | null;
+  loading: boolean;
+  error: string | null;
+  range: Range;
+  setRange: (r: Range) => void;
+  refetch: () => void;
 };
 
 export default function Dashboard() {
-  const { owner, repo } = useOutletContext<ContextType>();
+  const { data, loading, error, refetch } = useOutletContext<ContextType>();
 
-  const { data, loading, error, refetch } = useRepoData(owner, repo);
+  // const { data, loading, error, refetch } = useRepoData(owner, repo);
 
   if (error) {
     return (

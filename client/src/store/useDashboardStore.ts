@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import type { DataRange } from "../types/type";
+import type { Range } from "../types/type";
 
 interface DashboardState {
-  range: DataRange;
-  setRange: (range: DataRange) => void;
+  range: Range;
+  setRange: (range: Range) => void;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
