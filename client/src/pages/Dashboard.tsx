@@ -7,6 +7,7 @@ import HealthScoreCard from "../components/dashboard/HealthScoreCard";
 import ContributorsCard from "../components/dashboard/ContributorsCard";
 import PullRequestsCard from "../components/dashboard/PullRequestsCard";
 import IssuesCard from "../components/dashboard/IssuesCard";
+import LanguageCard from "../components/dashboard/LanguageCard";
 import type { RepoData, Range } from "../types/type";
 
 type ContextType = {
@@ -74,6 +75,7 @@ export default function Dashboard() {
         <PullRequestsCard
           data={loading ? null : (data?.pullRequests ?? null)}
         />
+        <LanguageCard data={loading ? null : (data?.languages ?? null)} />
       </div>
 
       <GenerateReadmeModal

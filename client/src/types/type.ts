@@ -37,7 +37,7 @@ export interface CommitActivity {
 }
 
 export interface CommitDay {
-  day: string;
+  date: string;
   count: number;
 }
 
@@ -97,6 +97,7 @@ export interface RepoData {
   pullRequests: PullRequest[];
   activity: ActivityItem[];
   healthScore: HealthScore;
+  languages: Language[];
 }
 
 export interface UseRepoDataReturn {
@@ -123,4 +124,10 @@ export interface GenerateReadmeResult {
   template_id: string;
   used_openai: boolean;
   pdf_export_hint: string;
+}
+
+export interface Language {
+  name: string;
+  percentage: number;
+  color: string;
 }

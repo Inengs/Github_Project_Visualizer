@@ -9,6 +9,7 @@ import type {
   PullRequest,
   ActivityItem,
   HealthScore,
+  Language,
 } from "../types/type";
 
 export const mockRepo: Repo = {
@@ -71,15 +72,25 @@ export const mockCommitActivity: Record<Range, CommitActivity> = {
   },
 };
 
-export const mockCommitsPerDay: CommitDay[] = [
-  { day: "Mon", count: 8 },
-  { day: "Tue", count: 12 },
-  { day: "Wed", count: 6 },
-  { day: "Thu", count: 14 },
-  { day: "Fri", count: 10 },
-  { day: "Sat", count: 4 },
-  { day: "Sun", count: 3 },
-];
+function generateCommitHistory(
+  days: number,
+): { date: string; count: number }[] {
+  const result = [];
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const dateStr = date.toISOString().split("T")[0];
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    const base = isWeekend ? 1 : 4;
+    const count =
+      Math.random() > 0.15 ? Math.floor(Math.random() * base * 4) : 0;
+    result.push({ date: dateStr, count });
+  }
+  return result;
+}
+
+export const mockCommitHistory = generateCommitHistory(364);
 
 export const mockIssues: Issue[] = [
   { label: "Closed", count: 380, color: "#3d9970", pct: 84 },
@@ -208,3 +219,13 @@ export const mockHealthScore: HealthScore = {
   activity_trend: "increasing",
   risk_signals: ["low documentation", "no recent releases"],
 };
+
+export const mockCommitsPerDay: CommitDay[] = mockCommitHistory;
+
+export const mockLanguages: Language[] = [
+  { name: "TypeScript", percentage: 72, color: "#3178c6" },
+  { name: "JavaScript", percentage: 14, color: "#f1e05a" },
+  { name: "CSS", percentage: 8, color: "#563d7c" },
+  { name: "HTML", percentage: 4, color: "#e34c26" },
+  { name: "Other", percentage: 2, color: "#6b7280" },
+];

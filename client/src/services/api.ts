@@ -13,18 +13,36 @@ import type {
   Range,
   GenerateReadmeOptions,
   GenerateReadmeResult,
+  Language,
 } from "../types/type";
 
 import {
+  mockRepo,
   mockStats,
+  mockCommitActivity,
   mockCommitsPerDay,
   mockIssues,
   mockContributors,
   mockPullRequests,
   mockActivity,
+  mockHealthScore,
+  mockLanguages,
 } from "../data/mockData";
 
 const USE_MOCK = true;
+
+const LANGUAGE_COLORS: Record<string, string> = {
+  TypeScript: "#3178c6",
+  JavaScript: "#f1e05a",
+  Python: "#3572A5",
+  Rust: "#dea584",
+  Go: "#00ADD8",
+  CSS: "#563d7c",
+  HTML: "#e34c26",
+  Java: "#b07219",
+  "C++": "#f34b7d",
+  Ruby: "#701516",
+};
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8000/api",
@@ -38,6 +56,7 @@ export async function fetchRepoOverview(
   owner: string,
   repo: string,
 ): Promise<Repo> {
+  if (USE_MOCK) return fakeFetch(mockRepo);
   const { data } = await api.get(`/repo/${owner}/${repo}`);
   return {
     name: data.name,
@@ -64,7 +83,9 @@ export async function fetchStats(
 export async function fetchCommitActivity(
   owner: string,
   repo: string,
+  range: Range,
 ): Promise<CommitActivity> {
+  if (USE_MOCK) return fakeFetch(mockCommitActivity[range]);
   const { data } = await api.get(`/repo/${owner}/${repo}/activity`);
   // GitHub returns array of { week, days, total } objects
   return {
@@ -164,6 +185,7 @@ export async function fetchHealthScore(
   owner: string,
   repo: string,
 ): Promise<HealthScore> {
+  if (USE_MOCK) return fakeFetch(mockHealthScore);
   const { data } = await api.get(`/analytics/repo/${owner}/${repo}/insights`);
   return {
     repo_health_score: data.repo_health_score,
@@ -195,4 +217,23 @@ export async function generateReadme(
     { timeout: 90000 },
   );
   return data;
+}
+
+export async function fetchLanguages(
+  owner: string,
+  repo: string,
+): Promise<Language[]> {
+  if (USE_MOCK) return fakeFetch(mockLanguages);
+  const { data } = await api.get(`/repo/${owner}/${repo}/languages`);
+  const total = Object.values(data as Record<string, number>).reduce(
+    (a, b) => a + b,
+    0,
+  );
+  return Object.entries(data as Record<string, number>).map(
+    ([name, bytes]) => ({
+      name,
+      percentage: Math.round((bytes / total) * 100),
+      color: LANGUAGE_COLORS[name] ?? "#6b7280",
+    }),
+  );
 }
