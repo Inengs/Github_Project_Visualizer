@@ -11,7 +11,11 @@ from app.schemas.repo import ContributorResponse, RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.github_cache import get_commit_activity_cached, get_json_cached
 from app.services.readme_generator import generate_repository_readme
+from app.schemas.repo import RepoResponse  
 from app.services.repository_store import save_repo_snapshot
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+ 
 
 router = APIRouter(prefix="/repo", tags=["repo"])
 
@@ -66,7 +70,8 @@ async def get_contributors(
     Proxies GitHub GET /repos/{owner}/{repo}/contributors (cached when Redis is enabled).
     Returns a stable subset of each contributor object.
     """
-    raw = await _github_cached(
+    
+    return await _github_cached(
         gh,
         response,
         f"/repos/{owner}/{repo}/contributors",
