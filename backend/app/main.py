@@ -8,6 +8,9 @@ from app.db import init_db
 from app.openapi_spec import attach_lead_openapi
 from app.routes.rate_limit import router as rate_limit_router
 from app.routes.repo import router as repo_router
+from app.routes.analytics import router as analytics_router
+from app.routes.auth import router as auth_router
+from app.routes.favorites import router as favorites_router
 from app.services.redis_app import close_redis, init_redis
 
 
@@ -32,6 +35,9 @@ attach_lead_openapi(app)
 
 app.include_router(repo_router, prefix="/api")
 app.include_router(rate_limit_router, prefix="/api")
+app.include_router(analytics_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(favorites_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
