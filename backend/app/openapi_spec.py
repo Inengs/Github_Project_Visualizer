@@ -24,9 +24,8 @@ def attach_lead_openapi(app: FastAPI) -> None:
             return yaml.safe_load(f)
 
     def openapi_fn() -> dict[str, Any]:
-        existing = getattr(app, "openapi_schema", None)
-        if existing is None:
-            app.openapi_schema = _load()
+        if not hasattr(app, "openapi_schema") or app.openapi_schema is None:
+                app.openapi_schema = _load()
         return app.openapi_schema
 
     app.openapi = openapi_fn  # type: ignore[method-assign]
