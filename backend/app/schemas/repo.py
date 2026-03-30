@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+
+from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field,HttpUrl
 
 
 class RepoResponse(BaseModel):
@@ -18,6 +20,20 @@ class RepoResponse(BaseModel):
     language: str | None = None
     topics: list[str]
 
+class ContributorBase(BaseModel):
+    username: str
+    avatar_url: HttpUrl
+    profile_url: HttpUrl
+    contributions: int
+    additions = Optional[int] = None
+    deletions = Optional[int] = None
+    commits = Optional[int] = None
+
+class ContributorResponse(ContributorBase):
+    owner: str
+    repo: str
+    total_contributors: int
+    contributors: list[ContributorBase]
 
 class ContributorResponse(BaseModel):
     """
