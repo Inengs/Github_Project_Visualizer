@@ -3,13 +3,19 @@ from __future__ import annotations
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 
 from app.deps.github_client import get_github_client
-from app.schemas.repo import RepoResponse
+from app.schemas.readme import GenerateReadmeRequest, GenerateReadmeResponse
+from app.schemas.repo import ContributorResponse, RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.github_cache import get_commit_activity_cached, get_json_cached
+from app.services.readme_generator import generate_repository_readme
+from app.schemas.repo import RepoResponse  
 from app.services.repository_store import save_repo_snapshot
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+ 
 
 router = APIRouter(prefix="/repo", tags=["repo"])
 
@@ -52,20 +58,38 @@ async def get_commits(
     )
 
 
-@router.get("/{owner}/{repo}/contributors")
+@router.get("/{owner}/{repo}/contributors", response_model=list[ContributorResponse])
 async def get_contributors(
     owner: str,
     repo: str,
     response: Response,
     gh: GitHubClient = Depends(get_github_client),
     per_page: int = Query(default=30, ge=1, le=100),
-) -> Any:
+) -> list[ContributorResponse]:
+    """
+    Proxies GitHub GET /repos/{owner}/{repo}/contributors (cached when Redis is enabled).
+    Returns a stable subset of each contributor object.
+    """
+    
     return await _github_cached(
         gh,
         response,
         f"/repos/{owner}/{repo}/contributors",
         {"per_page": per_page},
     )
+    if not isinstance(raw, list):
+        raise HTTPException(status_code=502, detail="Unexpected GitHub contributors response shape")
+    out: list[ContributorResponse] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        try:
+            out.append(ContributorResponse.model_validate(item))
+        except Exception:
+            continue
+    if len(raw) > 0 and len(out) == 0:
+        raise HTTPException(status_code=502, detail="Could not parse any GitHub contributor rows")
+    return out
 
 
 @router.get("/{owner}/{repo}/languages")
@@ -240,6 +264,26 @@ async def get_stargazers(
         f"/repos/{owner}/{repo}/stargazers",
         {"per_page": per_page},
     )
+
+
+@router.post("/{owner}/{repo}/generate-readme", response_model=GenerateReadmeResponse)
+async def post_generate_readme(
+    owner: str,
+    repo: str,
+    gh: GitHubClient = Depends(get_github_client),
+    body: GenerateReadmeRequest | None = Body(default=None),
+) -> GenerateReadmeResponse:
+    """
+    Build a structured README from live GitHub data, optional DB snapshots, and heuristics.
+    Optional OpenAI narrative when `use_openai` is true and an API key is supplied (body or server env).
+    """
+    opts = body or GenerateReadmeRequest()
+    try:
+        return await generate_repository_readme(owner, repo, github_client=gh, options=opts)
+    except GitHubApiError as e:
+        raise HTTPException(status_code=e.status_code or 502, detail=e.message) from e
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=str(e)) from e
 
 
 @router.get("/{owner}/{repo}", response_model=RepoResponse)

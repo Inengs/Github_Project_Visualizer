@@ -36,3 +36,6 @@ CELERY_BROKER_URL: str | None = os.getenv("CELERY_BROKER_URL") or REDIS_URL
 CELERY_RESULT_BACKEND: str | None = os.getenv("CELERY_RESULT_BACKEND") or REDIS_URL
 # Simple Redis list queue (RPUSH/BLPOP) when Celery is off; worker: python -m app.workers.redis_refresh_worker
 USE_REDIS_REFRESH_QUEUE: bool = os.getenv("USE_REDIS_REFRESH_QUEUE", "").lower() in ("1", "true", "yes")
+
+# Optional OpenAI key for README AI sections (user may override per request).
+OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
