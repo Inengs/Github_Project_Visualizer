@@ -1,40 +1,43 @@
 from fastapi import FastAPI
-
-from app.db import init_db
-from app.routes.analytics import router as analytics_router
-from app.routes.repo import router as repo_router
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import ALLOWED_ORIGINS
+from app.db import init_db
+from app.openapi_spec import attach_lead_openapi
+from app.routes.rate_limit import router as rate_limit_router
+from app.routes.repo import router as repo_router
 
-app = FastAPI()
+# Contract: paths under /api must match `backend/openapi.yaml` (served as /openapi.json).
+# Optional modules (analytics, GitHub OAuth, favorites) exist under `app/routes/` but are
+# not mounted here so the live documented API stays aligned with the lead spec.
+# To expose them later, include their routers and get the openapi.yaml updated first.
 
-# Register route groups under the /api prefix.
+app = FastAPI(
+    title="GitHub Project Visualizer API",
+    version="1.0.0",
+    description="API contract is defined in `backend/openapi.yaml` (served at /openapi.json).",
+)
+
+attach_lead_openapi(app)
+
 app.include_router(repo_router, prefix="/api")
-app.include_router(analytics_router, prefix="/api")
+app.include_router(rate_limit_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS.split(",") if ALLOWED_ORIGINS else ["*"],
+    allow_origins=[o.strip() for o in ALLOWED_ORIGINS.split(",") if o.strip()] if ALLOWED_ORIGINS else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def _startup() -> None:
-    """
-    Runs once when the server starts.
-    Creates database tables if they don't already exist.
-    Safe to call repeatedly — SQLAlchemy only creates missing tables.
-    """
     await init_db()
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    """
-    Simple health check endpoint.
-    Returns 200 OK with {"status": "ok"} if the server is running.
-    Useful for load balancers, Docker health checks, or uptime monitors.
-    """
+    """Operations endpoint; intentionally not part of `openapi.yaml`."""
     return {"status": "ok"}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.deps.github_client import get_github_client
 from app.schemas.analytics import RepoAnalyticsResponse
 from app.schemas.insights import InsightsSummaryResponse
 from app.services.github import GitHubApiError, GitHubClient

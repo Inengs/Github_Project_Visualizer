@@ -1,5 +1,7 @@
 fastapi>=0.100
 httpx>=0.25
+PyYAML>=6.0
+PyJWT>=2.8
 SQLAlchemy>=2.0
 asyncpg>=0.29
 aiosqlite>=0.19
