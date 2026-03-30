@@ -16,18 +16,18 @@ import type {
 } from "../types/type";
 
 import {
-  mockRepo,
+  // mockRepo,
   mockStats,
-  mockCommitActivity,
+  // mockCommitActivity,
   mockCommitsPerDay,
-  mockIssues,
-  mockContributors,
-  mockPullRequests,
+  // mockIssues,
+  // mockContributors,
+  // mockPullRequests,
   mockActivity,
-  mockHealthScore,
+  // mockHealthScore,
 } from "../data/mockData";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8000/api",
@@ -41,9 +41,16 @@ export async function fetchRepoOverview(
   owner: string,
   repo: string,
 ): Promise<Repo> {
-  if (USE_MOCK) return fakeFetch({ ...mockRepo, owner, name: repo });
-  const { data } = await api.get<Repo>(`/repo/${owner}/${repo}`);
-  return data;
+  const { data } = await api.get(`/repo/${owner}/${repo}`);
+  return {
+    name: data.name,
+    owner,
+    description: data.description ?? "",
+    language: data.language ?? "",
+    stars: data.stars,
+    forks: data.forks,
+    health_score: 0, // comes from /analytics endpoint separately
+  };
 }
 
 export async function fetchStats(
@@ -61,14 +68,21 @@ export async function fetchStats(
 export async function fetchCommitActivity(
   owner: string,
   repo: string,
-  range: Range,
 ): Promise<CommitActivity> {
-  if (USE_MOCK) return fakeFetch(mockCommitActivity[range]);
-  const { data } = await api.get<CommitActivity>(
-    `/repo/${owner}/${repo}/commits/activity`,
-    { params: { range } },
-  );
-  return data;
+  const { data } = await api.get(`/repo/${owner}/${repo}/activity`);
+  // GitHub returns array of { week, days, total } objects
+  return {
+    points: data.map((w: any) => w.total),
+    dates: data.map((w: any) =>
+      new Date(w.week * 1000).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+    ),
+    total: data.reduce((sum: number, w: any) => sum + w.total, 0),
+    change: "",
+    range: "52 weeks",
+  };
 }
 
 export async function fetchCommitsPerDay(
@@ -86,29 +100,54 @@ export async function fetchIssues(
   owner: string,
   repo: string,
 ): Promise<Issue[]> {
-  if (USE_MOCK) return fakeFetch(mockIssues);
-  const { data } = await api.get<Issue[]>(`/repo/${owner}/${repo}/issues`);
-  return data;
+  const { data } = await api.get(`/repo/${owner}/${repo}/issue-stats`);
+  const total = data.total_issues || 1;
+  return [
+    {
+      label: "Open",
+      count: data.open_issues,
+      color: "#6b7280",
+      pct: Math.round((data.open_issues / total) * 100),
+    },
+    {
+      label: "Closed",
+      count: data.closed_issues,
+      color: "#3d9970",
+      pct: Math.round((data.closed_issues / total) * 100),
+    },
+  ];
 }
 
 export async function fetchContributors(
   owner: string,
   repo: string,
 ): Promise<Contributor[]> {
-  if (USE_MOCK) return fakeFetch(mockContributors);
-  const { data } = await api.get<Contributor[]>(
-    `/repo/${owner}/${repo}/contributors`,
-  );
-  return data;
+  const { data } = await api.get(`/repo/${owner}/${repo}/contributors`);
+  const max = data[0]?.contributions ?? 1;
+  return data.slice(0, 5).map((c: any) => ({
+    initials: c.login.slice(0, 2).toUpperCase(),
+    name: c.login,
+    commits: c.contributions,
+    color: "#7c8cf8",
+    bg: "#12122a",
+    pct: Math.round((c.contributions / max) * 100),
+  }));
 }
 
 export async function fetchPullRequests(
   owner: string,
   repo: string,
 ): Promise<PullRequest[]> {
-  if (USE_MOCK) return fakeFetch(mockPullRequests);
-  const { data } = await api.get<PullRequest[]>(`/repo/${owner}/${repo}/pulls`);
-  return data;
+  const { data } = await api.get(`/repo/${owner}/${repo}/pulls`, {
+    params: { state: "all", per_page: 10 },
+  });
+  return data.map((pr: any) => ({
+    id: `#${pr.number}`,
+    title: pr.title,
+    author: pr.user?.login ?? "",
+    status: pr.merged_at ? "merged" : pr.state === "closed" ? "closed" : "open",
+    time: new Date(pr.updated_at).toLocaleDateString(),
+  }));
 }
 
 export async function fetchActivity(
@@ -126,9 +165,16 @@ export async function fetchHealthScore(
   owner: string,
   repo: string,
 ): Promise<HealthScore> {
-  if (USE_MOCK) return fakeFetch(mockHealthScore);
-  const { data } = await api.get<HealthScore>(`/repo/${owner}/${repo}/health`);
-  return data;
+  const { data } = await api.get(`/analytics/repo/${owner}/${repo}/insights`);
+  return {
+    score: data.repo_health_score,
+    label: data.activity_trend,
+    breakdown: data.risk_signals.map((s: string, i: number) => ({
+      label: s,
+      value: 100 - i * 15,
+      color: "#3d9970",
+    })),
+  };
 }
 
 export async function generateReadme(

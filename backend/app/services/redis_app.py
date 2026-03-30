@@ -18,9 +18,9 @@ async def init_redis() -> None:
         return
     if _client is not None:
         return
-    _client = redis.from_url(REDIS_URL, decode_responses=True)
+    _client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
     try:
-        await _client.ping()
+        await _client.ping() # type: ignore[misc]
         log.info("Redis connected for GitHub API cache.")
     except Exception as e:
         log.warning("Redis ping failed; caching disabled: %s", e)
