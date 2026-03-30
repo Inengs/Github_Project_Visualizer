@@ -1,3 +1,4 @@
+import { RefreshCw, Search, FileText } from "lucide-react";
 import { Moon, RefreshCw, Search, Sun } from "lucide-react";
 import type { Range } from "../../types/type";
 import { useState } from "react";
@@ -11,6 +12,7 @@ interface NavBarProps {
   onRangeChange: (range: Range) => void;
   onRefresh: () => void;
   onSearch: (owner: string, repo: string) => void;
+  onGenerateReadme?: () => void;
   theme: "dark" | "light";
   onThemeToggle: () => void;
 }
@@ -22,6 +24,7 @@ export default function NavBar({
   onRangeChange,
   onRefresh,
   onSearch,
+  onGenerateReadme,
   theme,
   onThemeToggle,
 }: NavBarProps) {
@@ -86,6 +89,19 @@ export default function NavBar({
           />
         </button>
 
+        {onGenerateReadme && (
+          <button
+            type="button"
+            onClick={onGenerateReadme}
+            title="Generate README from analytics"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-[5px] border border-[#1a1a1a] text-[11px] text-[#666] hover:text-[#aaa] hover:border-[#2a2a2a] hover:bg-[#111] transition-all duration-150"
+          >
+            <FileText size={11} />
+            Generate README
+          </button>
+        )}
+
+        <div className="w-[1px] h-4 bg-[#1a1a1a]" />
         <button
           onClick={onThemeToggle}
           title="Toggle theme"

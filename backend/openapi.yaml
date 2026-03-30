@@ -16,6 +16,8 @@
 #   GET /repos/{owner}/{repo}/git/trees/{sha}?recursive=1.
 # - Optional query param per_page (1–100, default 30) is accepted on list endpoints
 #   where GitHub supports it; it was not in the original spec — safe for clients to omit.
+# - POST /api/repo/{owner}/{repo}/generate-readme returns structured README markdown/HTML
+#   from GitHub data, snapshot deltas when present, and optional OpenAI narrative.
 #
 # NOT IN THIS FILE (ops / future — not part of the frontend contract until added here):
 # - GET /health — process health only.
@@ -77,7 +79,8 @@ paths:
   # Proxies GitHub GET /repos/{owner}/{repo}/contributors
   /api/repo/{owner}/{repo}/contributors:
     get:
-      summary: Get contributors
+      summary: Get repository contributors
+      description: Proxies GitHub contributors list with per_page (1–100). Response fields are a stable subset of the upstream user objects.
       parameters:
         - name: owner
           in: path
@@ -89,11 +92,42 @@ paths:
           required: true
           schema:
             type: string
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
       responses:
         "200":
-          description: List of contributors
+          description: Contributors ordered by commit count (descending)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [login, contributions]
+                  properties:
+                    login:
+                      type: string
+                    id:
+                      type: integer
+                    avatar_url:
+                      type: string
+                      nullable: true
+                    html_url:
+                      type: string
+                      nullable: true
+                    contributions:
+                      type: integer
+                      minimum: 0
         "404":
           description: Repo not found
+        "502":
+          description: Unexpected upstream response or parse error
 
   # Proxies GitHub GET /repos/{owner}/{repo}/languages
   /api/repo/{owner}/{repo}/languages:
@@ -295,6 +329,48 @@ paths:
           description: List of stargazers
         "404":
           description: Repo not found
+
+  /api/repo/{owner}/{repo}/generate-readme:
+    post:
+      summary: Generate structured README from repository metrics
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  type: string
+                  default: default
+                export_format:
+                  type: string
+                  enum: [markdown, html, both]
+                  default: both
+                use_openai:
+                  type: boolean
+                  default: false
+                openai_api_key:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          description: Markdown body and optional HTML export
+        "404":
+          description: Repo not found
+        "502":
+          description: GitHub API or auxiliary service error
 
   # Proxies GitHub GET /rate_limit (authenticated as server PAT or user token when wired)
   /api/rate-limit:

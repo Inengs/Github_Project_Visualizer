@@ -11,6 +11,8 @@ import type {
   ActivityItem,
   HealthScore,
   Range,
+  GenerateReadmeOptions,
+  GenerateReadmeResult,
 } from "../types/type";
 
 import {
@@ -173,4 +175,29 @@ export async function fetchHealthScore(
       color: "#3d9970",
     })),
   };
+}
+
+export async function generateReadme(
+  owner: string,
+  repo: string,
+  options?: GenerateReadmeOptions,
+): Promise<GenerateReadmeResult> {
+  if (USE_MOCK) {
+    return fakeFetch({
+      markdown: `# ${owner}/${repo}\n\n_Auto-generated README (mock)._\n\n## Summary\nPlaceholder content while \`USE_MOCK\` is enabled in \`api.ts\`.\n`,
+      html: `<!DOCTYPE html><html><body><h1>${owner}/${repo}</h1><p>Mock README</p></body></html>`,
+      template_id: "default",
+      used_openai: false,
+      pdf_export_hint:
+        "For PDF: open the HTML export in a browser and use Print → Save as PDF.",
+    });
+  }
+  const encOwner = encodeURIComponent(owner);
+  const encRepo = encodeURIComponent(repo);
+  const { data } = await api.post<GenerateReadmeResult>(
+    `/repo/${encOwner}/${encRepo}/generate-readme`,
+    options ?? {},
+    { timeout: 90000 },
+  );
+  return data;
 }

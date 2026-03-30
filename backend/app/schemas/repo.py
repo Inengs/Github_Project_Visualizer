@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, HttpUrl
+
 from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field,HttpUrl
 
 
 class RepoResponse(BaseModel):
@@ -33,3 +34,18 @@ class ContributorResponse(ContributorBase):
     repo: str
     total_contributors: int
     contributors: list[ContributorBase]
+
+class ContributorResponse(BaseModel):
+    """
+    Normalized contributor row from GitHub GET /repos/{owner}/{repo}/contributors.
+    Extra upstream fields are ignored so the public API stays stable.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    login: str
+    id: int = 0
+    avatar_url: str | None = None
+    html_url: str | None = None
+    contributions: int = Field(default=0, ge=0)
+

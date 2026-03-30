@@ -1,3 +1,5 @@
+import { useState } from "react";
+import GenerateReadmeModal from "../components/dashboard/GenerateReadmeModal";
 import { useOutletContext } from "react-router-dom";
 // import { useRepoData } from "../hooks/useRepoData";
 
@@ -51,6 +53,23 @@ export default function Dashboard() {
         data={loading ? null : (data?.commitActivity ?? null)}
       />
 
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <NavBar
+          title={activeTab}
+          subtitle={`${owner} / ${repo} · ${data?.commitActivity?.range ?? "..."} `}
+          range={range}
+          onRangeChange={setRange}
+          onRefresh={refetch}
+          onSearch={handleSearch}
+          onGenerateReadme={() => setReadmeModalOpen(true)}
+        />
+
+        <GenerateReadmeModal
+          open={readmeModalOpen}
+          onClose={() => setReadmeModalOpen(false)}
+          owner={owner}
+          repo={repo}
+        />
       <CommitsPerDayChart
         data={loading ? null : (data?.commitsPerDay ?? null)}
       />

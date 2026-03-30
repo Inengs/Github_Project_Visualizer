@@ -8,3 +8,4 @@ SQLAlchemy>=2.0
 asyncpg>=0.29
 aiosqlite>=0.19
 uvicorn[standard]>=0.23
+markdown>=3.5
