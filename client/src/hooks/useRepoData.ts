@@ -10,6 +10,7 @@ import {
   fetchPullRequests,
   fetchActivity,
   fetchHealthScore,
+  fetchLanguages,
 } from "../services/api";
 
 const DEFAULT_OWNER = "vercel";
@@ -38,6 +39,7 @@ export function useRepoData(
         pullRequests,
         activity,
         healthScore,
+        languages,
       ] = await Promise.all([
         fetchRepoOverview(owner, repo),
         fetchStats(owner, repo, range),
@@ -48,6 +50,7 @@ export function useRepoData(
         fetchPullRequests(owner, repo),
         fetchActivity(owner, repo),
         fetchHealthScore(owner, repo),
+        fetchLanguages(owner, repo),
       ]);
 
       setData({
@@ -60,6 +63,7 @@ export function useRepoData(
         pullRequests,
         activity,
         healthScore,
+        languages,
       });
     } catch (err) {
       const message =
