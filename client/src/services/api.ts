@@ -13,21 +13,36 @@ import type {
   Range,
   GenerateReadmeOptions,
   GenerateReadmeResult,
+  Language,
 } from "../types/type";
 
 import {
-  // mockRepo,
+  mockRepo,
   mockStats,
-  // mockCommitActivity,
+  mockCommitActivity,
   mockCommitsPerDay,
-  // mockIssues,
-  // mockContributors,
-  // mockPullRequests,
+  mockIssues,
+  mockContributors,
+  mockPullRequests,
   mockActivity,
-  // mockHealthScore,
+  mockHealthScore,
+  mockLanguages,
 } from "../data/mockData";
 
-const USE_MOCK = false;
+const USE_MOCK = true;
+
+const LANGUAGE_COLORS: Record<string, string> = {
+  TypeScript: "#3178c6",
+  JavaScript: "#f1e05a",
+  Python: "#3572A5",
+  Rust: "#dea584",
+  Go: "#00ADD8",
+  CSS: "#563d7c",
+  HTML: "#e34c26",
+  Java: "#b07219",
+  "C++": "#f34b7d",
+  Ruby: "#701516",
+};
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8000/api",
@@ -41,15 +56,15 @@ export async function fetchRepoOverview(
   owner: string,
   repo: string,
 ): Promise<Repo> {
+  if (USE_MOCK) return fakeFetch(mockRepo);
   const { data } = await api.get(`/repo/${owner}/${repo}`);
   return {
     name: data.name,
-    owner,
-    description: data.description ?? "",
-    language: data.language ?? "",
+    description: data.description ?? null,
+    language: data.language ?? null,
     stars: data.stars,
     forks: data.forks,
-    health_score: 0, // comes from /analytics endpoint separately
+    topics: data.topics ?? [],
   };
 }
 
@@ -68,7 +83,9 @@ export async function fetchStats(
 export async function fetchCommitActivity(
   owner: string,
   repo: string,
+  range: Range,
 ): Promise<CommitActivity> {
+  if (USE_MOCK) return fakeFetch(mockCommitActivity[range]);
   const { data } = await api.get(`/repo/${owner}/${repo}/activity`);
   // GitHub returns array of { week, days, total } objects
   return {
@@ -100,6 +117,7 @@ export async function fetchIssues(
   owner: string,
   repo: string,
 ): Promise<Issue[]> {
+  if (USE_MOCK) return fakeFetch(mockIssues);
   const { data } = await api.get(`/repo/${owner}/${repo}/issue-stats`);
   const total = data.total_issues || 1;
   return [
@@ -122,6 +140,7 @@ export async function fetchContributors(
   owner: string,
   repo: string,
 ): Promise<Contributor[]> {
+  if (USE_MOCK) return fakeFetch(mockContributors);
   const { data } = await api.get(`/repo/${owner}/${repo}/contributors`);
   const max = data[0]?.contributions ?? 1;
   return data.slice(0, 5).map((c: any) => ({
@@ -138,8 +157,9 @@ export async function fetchPullRequests(
   owner: string,
   repo: string,
 ): Promise<PullRequest[]> {
+  if (USE_MOCK) return fakeFetch(mockPullRequests);
   const { data } = await api.get(`/repo/${owner}/${repo}/pulls`, {
-    params: { state: "all", per_page: 10 },
+    params: { state: "all" },
   });
   return data.map((pr: any) => ({
     id: `#${pr.number}`,
@@ -165,15 +185,12 @@ export async function fetchHealthScore(
   owner: string,
   repo: string,
 ): Promise<HealthScore> {
+  if (USE_MOCK) return fakeFetch(mockHealthScore);
   const { data } = await api.get(`/analytics/repo/${owner}/${repo}/insights`);
   return {
-    score: data.repo_health_score,
-    label: data.activity_trend,
-    breakdown: data.risk_signals.map((s: string, i: number) => ({
-      label: s,
-      value: 100 - i * 15,
-      color: "#3d9970",
-    })),
+    repo_health_score: data.repo_health_score,
+    activity_trend: data.activity_trend,
+    risk_signals: data.risk_signals,
   };
 }
 
@@ -200,4 +217,23 @@ export async function generateReadme(
     { timeout: 90000 },
   );
   return data;
+}
+
+export async function fetchLanguages(
+  owner: string,
+  repo: string,
+): Promise<Language[]> {
+  if (USE_MOCK) return fakeFetch(mockLanguages);
+  const { data } = await api.get(`/repo/${owner}/${repo}/languages`);
+  const total = Object.values(data as Record<string, number>).reduce(
+    (a, b) => a + b,
+    0,
+  );
+  return Object.entries(data as Record<string, number>).map(
+    ([name, bytes]) => ({
+      name,
+      percentage: Math.round((bytes / total) * 100),
+      color: LANGUAGE_COLORS[name] ?? "#6b7280",
+    }),
+  );
 }

@@ -24,6 +24,7 @@ interface NavSection {
 interface SidebarProps {
   owner: string;
   repo: string;
+  onNavigate: () => void;
 }
 
 const NAV_SECTIONS: NavSection[] = [
@@ -61,7 +62,7 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
-export default function Sidebar({ owner, repo }: SidebarProps) {
+export default function Sidebar({ owner, repo, onNavigate }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -109,7 +110,10 @@ export default function Sidebar({ owner, repo }: SidebarProps) {
               return (
                 <button
                   key={label}
-                  onClick={() => navigate(path)}
+                  onClick={() => {
+                    navigate(path);
+                    onNavigate();
+                  }}
                   className={`
                     flex items-center gap-2.5 w-full px-[18px] py-[7px]
                     text-[12px] text-left transition-colors duration-150

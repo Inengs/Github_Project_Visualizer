@@ -9,7 +9,7 @@ export default function HealthScoreCard({ data }: HealthScoreCardProps) {
   if (!data) return <CardSkeleton />;
 
   const circ = 2 * Math.PI * 20;
-  const fill = (data.score / 100) * circ;
+  const fill = (data.repo_health_score / 100) * circ;
 
   return (
     <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg p-[18px] hover:border-gray-300 dark:hover:border-[#1f1f1f] transition-colors duration-200">
@@ -17,11 +17,13 @@ export default function HealthScoreCard({ data }: HealthScoreCardProps) {
         Health score
       </p>
       <p className="text-[17px] font-medium text-black dark:text-[#e1e1e1] tracking-[-0.02em]">
-        {data.score} / 100
+        {data.repo_health_score} / 100
       </p>
-      <p className="text-[10px] text-[#3d9970] mt-0.5 mb-3.5">{data.label}</p>
+      <p className="text-[10px] text-[#3d9970] mt-0.5 mb-3.5 capitalize">
+        {data.activity_trend}
+      </p>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <svg
           width="52"
           height="52"
@@ -55,23 +57,24 @@ export default function HealthScoreCard({ data }: HealthScoreCardProps) {
           />
         </svg>
 
-        <div className="flex-1 flex flex-col gap-2">
-          {data.breakdown.map((row) => (
-            <div key={row.label} className="flex items-center gap-2">
-              <span className="text-[10px] text-gray-400 dark:text-[#444] w-[52px] flex-shrink-0">
-                {row.label}
-              </span>
-              <div className="flex-1 h-[2px] bg-gray-200 dark:bg-[#161616] rounded-sm overflow-hidden">
-                <div
-                  className="h-[2px] rounded-sm transition-all duration-700 ease-out"
-                  style={{ width: `${row.value}%`, background: row.color }}
-                />
+        <div className="flex-1 flex flex-col gap-1.5">
+          <p className="text-[10px] text-gray-400 dark:text-[#444] mb-1">
+            Risk signals
+          </p>
+          {data.risk_signals.length === 0 ? (
+            <p className="text-[11px] text-[#3d9970]">
+              No risk signals detected
+            </p>
+          ) : (
+            data.risk_signals.map((signal, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-amber-400 flex-shrink-0" />
+                <span className="text-[11px] text-gray-500 dark:text-[#666] capitalize">
+                  {signal}
+                </span>
               </div>
-              <span className="text-[10px] text-gray-300 dark:text-[#2e2e2e] w-5 text-right flex-shrink-0">
-                {row.value}
-              </span>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
@@ -80,19 +83,16 @@ export default function HealthScoreCard({ data }: HealthScoreCardProps) {
 
 function CardSkeleton() {
   return (
-    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg px-[18px] py-4">
+    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg p-[18px]">
       <Skeleton className="h-2.5 w-20 mb-2" />
       <Skeleton className="h-4 w-16 mb-4" />
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <Skeleton className="w-[52px] h-[52px] rounded-full flex-shrink-0" />
         <div className="flex-1 flex flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Skeleton className="h-2 w-[52px]" />
-              <Skeleton className="flex-1 h-[2px]" />
-              <Skeleton className="h-2 w-5" />
-            </div>
-          ))}
+          <Skeleton className="h-2 w-20 mb-1" />
+          <Skeleton className="h-2.5 w-32" />
+          <Skeleton className="h-2.5 w-28" />
+          <Skeleton className="h-2.5 w-24" />
         </div>
       </div>
     </div>
