@@ -13,8 +13,8 @@ import {
   fetchLanguages,
 } from "../services/api";
 
-const DEFAULT_OWNER = "vercel";
-const DEFAULT_REPO = "next.js";
+const DEFAULT_OWNER = "Inengs";
+const DEFAULT_REPO = "Github_Project_Visualizer";
 
 export function useRepoData(
   owner: string = DEFAULT_OWNER,
