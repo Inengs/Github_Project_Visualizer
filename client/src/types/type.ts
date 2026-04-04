@@ -106,7 +106,7 @@ export interface IssueListItem {
   time: string;
 }
 
-/** Row on the Commits page */
+/** Single commit row for the Commits page */
 export interface CommitListItem {
   sha: string;
   message: string;
