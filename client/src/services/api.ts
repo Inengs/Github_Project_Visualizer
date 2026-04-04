@@ -363,16 +363,21 @@ export async function fetchLanguages(
   repo: string,
 ): Promise<Language[]> {
   if (USE_MOCK) return fakeFetch(mockLanguages);
-  const { data } = await api.get(`/repo/${owner}/${repo}/languages`);
-  const total = Object.values(data as Record<string, number>).reduce(
-    (a, b) => a + b,
-    0,
+  const encOwner = encodeURIComponent(owner);
+  const encRepo = encodeURIComponent(repo);
+  const { data } = await api.get<Record<string, number>>(
+    `/repo/${encOwner}/${encRepo}/languages`,
   );
-  return Object.entries(data as Record<string, number>).map(
-    ([name, bytes]) => ({
-      name,
-      percentage: Math.round((bytes / total) * 100),
-      color: LANGUAGE_COLORS[name] ?? "#6b7280",
-    }),
+  const entries = Object.entries(data ?? {}).filter(
+    ([, bytes]) => typeof bytes === "number" && bytes >= 0,
   );
+  const total = entries.reduce((a, [, bytes]) => a + bytes, 0);
+  if (total <= 0) return [];
+  const rows = entries.map(([name, bytes]) => ({
+    name,
+    percentage: Math.round((bytes / total) * 100),
+    color: LANGUAGE_COLORS[name] ?? "#6b7280",
+  }));
+  rows.sort((a, b) => b.percentage - a.percentage);
+  return rows;
 }

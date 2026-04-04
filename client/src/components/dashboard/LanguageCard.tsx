@@ -8,6 +8,19 @@ interface LanguageCardProps {
 export default function LanguageCard({ data }: LanguageCardProps) {
   if (!data) return <CardSkeleton />;
 
+  if (data.length === 0) {
+    return (
+      <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg p-[18px]">
+        <p className="text-[13px] font-medium text-black dark:text-[#e1e1e1] mb-2">
+          Languages
+        </p>
+        <p className="text-[11px] text-gray-500 dark:text-[#666]">
+          No language breakdown returned for this repository.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#161616] rounded-lg p-[18px] hover:border-gray-300 dark:hover:border-[#1f1f1f] transition-colors duration-200">
       <p className="text-[13px] font-medium text-black dark:text-[#e1e1e1] mb-4">

@@ -11,6 +11,7 @@ import CommitActivityChart from "../components/dashboard/CommitActivityChart";
 import CommitsPerDayChart from "../components/dashboard/CommitsPerDayChart";
 import HealthScoreCard from "../components/dashboard/HealthScoreCard";
 import ContributionPredictionCard from "../components/dashboard/ContributionPredictionCard";
+import LanguageCard from "../components/dashboard/LanguageCard";
 
 interface AnalyticsPageProps {
   data: RepoData | null;
@@ -57,6 +58,7 @@ export default function AnalyticsPage({ data, loading }: AnalyticsPageProps) {
         <ContributionPredictionCard
           data={loading ? null : (data?.contributionPrediction ?? null)}
         />
+        <LanguageCard data={loading ? null : (data?.languages ?? null)} />
       </div>
     </div>
   );

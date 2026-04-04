@@ -94,6 +94,12 @@ async def get_languages(
     response: Response,
     gh: GitHubClient = Depends(get_github_client),
 ) -> Any:
+    """
+    Proxies GitHub GET /repos/{owner}/{repo}/languages (cached when Redis is enabled).
+
+    Returns a JSON object mapping language name to byte counts on the default branch
+    (same shape as GitHub’s API — the client computes percentages).
+    """
     return await _github_cached(gh, response, f"/repos/{owner}/{repo}/languages", None)
 
 

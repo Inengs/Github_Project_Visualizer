@@ -146,7 +146,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Language percentages
+          description: Language name to byte count (GitHub API shape; clients derive percentages)
         "404":
           description: Repo not found
 
