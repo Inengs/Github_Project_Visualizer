@@ -163,6 +163,7 @@ export default function IssuesPage({ issues, loading }: IssuesPageProps) {
                     {issue.comments}
                   </span>
                   <time dateTime={issue.time}>{issue.time}</time>
+                  {/* Add avatar of assigned members */}
                 </div>
               </button>
             </li>
