@@ -65,6 +65,8 @@ const NAV_SECTIONS: NavSection[] = [
 export default function Sidebar({ owner, repo, onNavigate }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const path =
+    location.pathname.replace(/\/$/, "") || "/";
 
   return (
     <aside className="w-[220px] flex-shrink-0 flex flex-col bg-white dark:bg-[#080808] border-r border-gray-200 dark:border-[#161616]">
@@ -102,25 +104,23 @@ export default function Sidebar({ owner, repo, onNavigate }: SidebarProps) {
               {section}
             </p>
 
-            {items.map(({ label, icon: Icon, path }) => {
-              const isActive =
-                location.pathname === path ||
-                (path === "/dashboard" && location.pathname === "/dashboard");
+            {items.map(({ label, icon: Icon, path: to }) => {
+              const isActive = path === to;
 
               return (
                 <button
                   key={label}
                   onClick={() => {
-                    navigate(path);
+                    navigate(to);
                     onNavigate();
                   }}
                   className={`
-                    flex items-center gap-2.5 w-full px-[18px] py-[7px]
+                    flex items-center gap-2.5 w-full px-[14px] py-[7px] mx-1.5 rounded-md
                     text-[12px] text-left transition-colors duration-150
                     ${
                       isActive
-                        ? "text-black dark:text-[#e1e1e1]"
-                        : "text-gray-400 dark:text-[#555] hover:text-gray-700 dark:hover:text-[#aaa]"
+                        ? "text-black dark:text-[#e1e1e1] bg-gray-100 dark:bg-[#121212] border border-gray-200 dark:border-[#1c1c1c]"
+                        : "text-gray-400 dark:text-[#555] hover:text-gray-700 dark:hover:text-[#aaa] border border-transparent hover:bg-gray-50 dark:hover:bg-[#0c0c0c]"
                     }
                   `}
                 >

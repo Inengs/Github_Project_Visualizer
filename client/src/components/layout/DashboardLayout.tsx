@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import NavBar from "./NavBar";
 import { useTheme } from "../../hooks/useTheme";
 import { useRepoData } from "../../hooks/useRepoData";
+import type { DashboardLayoutContextValue } from "../../types/type";
 
 export default function DashboardLayout() {
   const [owner, setOwner] = useState("Inegs");
@@ -79,18 +80,20 @@ export default function DashboardLayout() {
 
         <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
           <Outlet
-            context={{
-              owner,
-              repo,
-              data,
-              loading,
-              error,
-              range,
-              setRange,
-              refetch,
-              readmeModalOpen,
-              setReadmeModalOpen,
-            }}
+            context={
+              {
+                owner,
+                repo,
+                data,
+                loading,
+                error,
+                range,
+                setRange,
+                refetch,
+                readmeModalOpen,
+                setReadmeModalOpen,
+              } satisfies DashboardLayoutContextValue
+            }
           />
         </main>
       </div>

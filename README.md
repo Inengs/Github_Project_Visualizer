@@ -207,3 +207,40 @@ Please follow [Conventional Commits](https://www.conventionalcommits.org/) for c
 ## 📄 License
 
 MIT License. See [LICENSE](./LICENSE) for details.
+
+
+Backend
+POST /api/repo/{owner}/{repo}/generate-readme (optional JSON body) builds a structured README from:
+
+Live GitHub repo metadata, languages, contributors, search-based issue/PR counts
+Stored snapshots when present (star/fork deltas via get_repo_analytics)
+Existing build_insights_summary (health score, trend, risks, merge stats)
+app/services/readme_generator.py — markdown template (summary, metrics table, activity, issues/PRs, languages, contributors, contributing hints). HTML is produced with the markdown package when export_format is html or both.
+
+app/schemas/readme.py — GenerateReadmeRequest / GenerateReadmeResponse (template_id reserved for later templates).
+
+Optional OpenAI — use_openai: true plus key from openai_api_key in the body or server OPENAI_API_KEY (app/config.py). Keys are not logged.
+
+InsightsSummaryResponse now includes closed_prs_sampled, merged_prs_sampled, merge_rate so the README can cite merge behavior without extra GitHub calls.
+
+openapi.yaml — path and changelog entry for the new endpoint.
+
+requirements.txt — markdown>=3.5.
+
+Bugfix — Removed the duplicate get_github_client import in analytics.py so the OAuth-aware client from app.deps.github_client is used.
+
+Frontend
+GenerateReadmeModal — opened from the nav Generate README button: export mode, optional OpenAI + per-request API key, Generate, preview, Copy Markdown, download .md / .html, plus the server’s PDF hint (print HTML → Save as PDF).
+
+generateReadme() in api.ts — encodeURIComponent on owner/repo, 90s timeout. With USE_MOCK, it still returns mock content so the flow works offline.
+
+PDF / templates / AI
+PDF: No server-side PDF library; response includes pdf_export_hint describing browser print-to-PDF from the HTML file.
+Templates: template_id is accepted and echoed; only default is implemented today.
+AI: Heuristic copy is always included; OpenAI adds an “AI-assisted perspective” section when enabled and a key is available.
+To try it against the real API, set USE_MOCK to false in client/src/services/api.ts, run the backend with GitHub auth as you already do, and call POST /api/repo/{owner}/{repo}/generate-readme with {} or a body like:
+
+{
+  "export_format": "both",
+  "use_openai": false
+}
