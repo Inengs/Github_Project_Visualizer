@@ -6,6 +6,8 @@ import type {
   CommitActivity,
   CommitDay,
   Issue,
+  IssueListItem,
+  CommitListItem,
   Contributor,
   PullRequest,
   ActivityItem,
@@ -22,6 +24,8 @@ import {
   mockCommitActivity,
   mockCommitsPerDay,
   mockIssues,
+  mockIssueList,
+  mockCommitList,
   mockContributors,
   mockPullRequests,
   mockActivity,
@@ -134,6 +138,28 @@ export async function fetchIssues(
       pct: Math.round((data.closed_issues / total) * 100),
     },
   ];
+}
+
+export async function fetchIssueList(
+  owner: string,
+  repo: string,
+): Promise<IssueListItem[]> {
+  if (USE_MOCK) return fakeFetch(mockIssueList);
+  const { data } = await api.get<IssueListItem[]>(
+    `/repo/${owner}/${repo}/issues/list`,
+  );
+  return data;
+}
+
+export async function fetchCommitList(
+  owner: string,
+  repo: string,
+): Promise<CommitListItem[]> {
+  if (USE_MOCK) return fakeFetch(mockCommitList);
+  const { data } = await api.get<CommitListItem[]>(
+    `/repo/${owner}/${repo}/commits/list`,
+  );
+  return data;
 }
 
 export async function fetchContributors(

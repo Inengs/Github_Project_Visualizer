@@ -87,17 +87,62 @@ export interface Issue {
   color: string;
   pct: number;
 }
+
+/** Row on the Issues page (distinct from aggregate Issue stats). */
+export type IssueRowState = "open" | "closed";
+
+export interface IssueRowLabel {
+  name: string;
+  color: string;
+}
+
+export interface IssueListItem {
+  number: number;
+  title: string;
+  state: IssueRowState;
+  author: string;
+  labels: IssueRowLabel[];
+  comments: number;
+  time: string;
+}
+
+/** Row on the Commits page */
+export interface CommitListItem {
+  sha: string;
+  message: string;
+  author: string;
+  author_initials: string;
+  branch: string;
+  time: string;
+}
+
 export interface RepoData {
   repoInfo: Repo;
   stats: Stats;
   commitActivity: CommitActivity;
   commitsPerDay: CommitDay[];
   issues: Issue[];
+  issueList: IssueListItem[];
+  commitList: CommitListItem[];
   contributors: Contributor[];
   pullRequests: PullRequest[];
   activity: ActivityItem[];
   healthScore: HealthScore;
   languages: Language[];
+}
+
+/** React Router outlet context from `DashboardLayout`. */
+export interface DashboardLayoutContextValue {
+  owner: string;
+  repo: string;
+  data: RepoData | null;
+  loading: boolean;
+  error: string | null;
+  range: Range;
+  setRange: (r: Range) => void;
+  refetch: () => void;
+  readmeModalOpen: boolean;
+  setReadmeModalOpen: (open: boolean) => void;
 }
 
 export interface UseRepoDataReturn {
