@@ -12,6 +12,7 @@ import {
   fetchPullRequests,
   fetchActivity,
   fetchHealthScore,
+  fetchContributionPrediction,
   fetchLanguages,
 } from "../services/api";
 
@@ -43,6 +44,7 @@ export function useRepoData(
         pullRequests,
         activity,
         healthScore,
+        contributionPrediction,
         languages,
       ] = await Promise.all([
         fetchRepoOverview(owner, repo),
@@ -56,6 +58,8 @@ export function useRepoData(
         fetchPullRequests(owner, repo),
         fetchActivity(owner, repo),
         fetchHealthScore(owner, repo),
+        // Contribution forecast: independent of DB snapshots (GitHub weekly totals only).
+        fetchContributionPrediction(owner, repo),
         fetchLanguages(owner, repo),
       ]);
 
@@ -71,6 +75,7 @@ export function useRepoData(
         pullRequests,
         activity,
         healthScore,
+        contributionPrediction,
         languages,
       });
     } catch (err) {
