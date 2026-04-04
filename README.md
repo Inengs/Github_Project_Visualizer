@@ -51,6 +51,8 @@ github-visualizer/
 │   │   ├── schemas/          # Pydantic models
 │   │   └── config.py         # Environment config
 │   ├── requirements.txt
+│   ├── pytest.ini          # pytest-asyncio / test discovery
+│   ├── tests/              # Backend pytest suite
 │   └── .env.example
 │
 ├── frontend/                 # React application
@@ -180,14 +182,38 @@ docker-compose up --build
 
 ## 🧪 Running Tests
 
-```bash
-# Backend
-cd backend
-pytest
+### Backend (pytest)
 
-# Frontend
-cd frontend
-npm run test
+From the `backend` directory, install dependencies (includes `pytest` and `pytest-asyncio` from `requirements.txt`), then run:
+
+```bash
+cd backend
+pip install -r requirements.txt
+
+# Run the full suite under tests/
+python -m pytest
+
+# Verbose output
+python -m pytest -v
+
+# Single file (e.g. repository snapshots & analytics)
+python -m pytest tests/test_repository_analytics_and_store.py -v
+```
+
+**Notes**
+
+- Config lives in `backend/pytest.ini` (async mode, `testpaths = tests`).
+- Tests such as `test_repository_analytics_and_store.py` use **in-memory SQLite** via `tests/conftest.py`; they do **not** require `DATABASE_URL` or a running Postgres instance.
+
+### Frontend
+
+The SPA lives in `client/`. There is no `npm run test` script yet; use typecheck/build and lint:
+
+```bash
+cd client
+npm install
+npm run build
+npm run lint
 ```
 
 ---

@@ -9,3 +9,5 @@ asyncpg>=0.29
 aiosqlite>=0.19
 uvicorn[standard]>=0.23
 markdown>=3.5
+pytest>=7.4
+pytest-asyncio>=0.24
