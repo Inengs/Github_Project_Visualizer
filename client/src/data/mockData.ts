@@ -11,6 +11,7 @@ import type {
   PullRequest,
   ActivityItem,
   HealthScore,
+  ContributionPrediction,
   Language,
 } from "../types/type";
 
@@ -387,6 +388,21 @@ export const mockHealthScore: HealthScore = {
   repo_health_score: 82,
   activity_trend: "increasing",
   risk_signals: ["low documentation", "no recent releases"],
+  high_impact_insights: [
+    "Star count grew between stored snapshots, suggesting sustained attention.",
+    "Commit activity is accelerating compared to the prior weeks in GitHub’s sampled window.",
+    "Most contributions in the sampled leaderboard come from a small set of developers.",
+  ],
+  used_openai: false,
+};
+
+export const mockContributionPrediction: ContributionPrediction = {
+  trend_direction: "growing",
+  recent_weekly_avg: 12.5,
+  prior_weekly_avg: 9.2,
+  predicted_next_week_commits: 13,
+  method_note:
+    "Projection uses GitHub’s last-year weekly commit totals; short windows can be noisy.",
 };
 
 export const mockCommitsPerDay: CommitDay[] = mockCommitHistory;

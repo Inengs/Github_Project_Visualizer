@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Annotated
+from typing import Any
 
 import httpx
 
@@ -12,17 +12,9 @@ from app.schemas.repo import ContributorResponse, RepoResponse
 from app.services.github import GitHubApiError, GitHubClient
 from app.services.github_cache import get_commit_activity_cached, get_json_cached
 from app.services.readme_generator import generate_repository_readme
-from app.schemas.repo import RepoResponse  
-
 from app.services.repository_store import save_repo_snapshot
-from app.dependencies import get_github_client
-
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
- 
 
 router = APIRouter(prefix="/repo", tags=["repo"])
-# imported but not used 
-# GH_CLIENT = Annotated[GitHubClient, Depends(get_github_client)]
 
 # --- Paths below are declared before `/{owner}/{repo}` so FastAPI matches the most specific route first.
 # GitHub JSON is cached in Redis when REDIS_URL is set (see app/services/github_cache.py).
@@ -74,8 +66,7 @@ async def get_contributors(
     Proxies GitHub GET /repos/{owner}/{repo}/contributors (cached when Redis is enabled).
     Returns a stable subset of each contributor object.
     """
-    
-    return await _github_cached(
+    raw = await _github_cached(
         gh,
         response,
         f"/repos/{owner}/{repo}/contributors",
@@ -103,6 +94,12 @@ async def get_languages(
     response: Response,
     gh: GitHubClient = Depends(get_github_client),
 ) -> Any:
+    """
+    Proxies GitHub GET /repos/{owner}/{repo}/languages (cached when Redis is enabled).
+
+    Returns a JSON object mapping language name to byte counts on the default branch
+    (same shape as GitHub’s API — the client computes percentages).
+    """
     return await _github_cached(gh, response, f"/repos/{owner}/{repo}/languages", None)
 
 
@@ -294,7 +291,7 @@ async def post_generate_readme(
 async def get_repo(
     owner: str,
     repo: str,
-    gh: GH_CLIENT,
+    gh: GitHubClient = Depends(get_github_client),
 ) -> RepoResponse:
     """
     Fetches live repository data from the GitHub API and saves a snapshot to the database.
@@ -344,64 +341,3 @@ async def get_repo(
     await save_repo_snapshot(owner, repo, result)
     return result
 
-
-
-# GET CONTRIBUTORS TO THE GITHUB REPOSITORY
-
-from fastapi import Query
-from app.schemas.repo import ContributorResponse
-from app.services.contributors import fetch_stats, build_contributor
-
-@router.get('/api/repo/{owner}/{repo}/contributors', 
-            response_model=ContributorResponse)
-async def get_contributors(
-    owner: str,
-    repo: str,
-    gh: GH_CLIENT,
-    per_page: int = Query(default=30, ge=1, le=100),
-    page: int = Query(default=1, ge=1)
-) -> ContributorResponse:
-    
-    """
-    Fetches contributor data for a repository from the GitHub API.
-
-    - owner: GitHub username or organisation
-    - repo:  Repository name
-
-    Also attempts to fetch detailed commit stats (additions/deletions).
-    Stats may be absent if GitHub is still computing them (202 response).
-
-    Raises:
-    - 404/502 if GitHub returns an error (e.g. repo not found, rate limited)
-    - 502 if the network request itself fails
-    """
-
-    try:
-        payload: Any = await gh.request_json(
-            "GET",
-            f"/repos/{owner}/{repo}/contributors",
-            params={"per_page": per_page, "page": page},
-        )
-    except GitHubApiError as e:
-        status = e.status_code or 502
-        raise HTTPException(status_code=status, detail=e.message) from e
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=str(e)) from e
-    
-    stats_map = await fetch_stats(gh, owner, repo)
-
-    
-    contributors = [
-        build_contributor(c, stats_map)
-        for c in payload
-        if isinstance(c, dict)
-    ]
-
-    return ContributorResponse(
-        owner=owner,
-        repo=repo,
-        total_contributors=len(contributors),
-        contributors=contributors,
-    )
-
-    

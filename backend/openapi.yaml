@@ -146,7 +146,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Language percentages
+          description: Language name to byte count (GitHub API shape; clients derive percentages)
         "404":
           description: Repo not found
 
@@ -404,7 +404,7 @@ paths:
 
   /api/analytics/repo/{owner}/{repo}/insights:
     get:
-      summary: Get repository health score and risk signals
+      summary: Get repository health score, risk signals, and heuristic high-impact insight lines
       parameters:
         - name: owner
           in: path
@@ -418,8 +418,90 @@ paths:
             type: string
       responses:
         "200":
-          description: Health score, activity trend, and risk signals
+          description: Health score, activity trend, risk signals, high_impact_insights, used_openai
         "404":
           description: No snapshots found for this repo
+        "502":
+          description: GitHub API error
+    post:
+      summary: Same as GET with optional OpenAI-generated insight bullets
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                use_openai:
+                  type: boolean
+                  default: false
+                openai_api_key:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          description: Insights payload; used_openai true when the model returned bullets
+        "404":
+          description: No snapshots found for this repo
+        "502":
+          description: GitHub or OpenAI error
+
+  /api/analytics/repo/{owner}/{repo}/prediction:
+    get:
+      summary: Heuristic next-week commit estimate from weekly commit totals
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trend direction and projected weekly commits
+        "502":
+          description: GitHub API error
+
+  /api/analytics/compare/repos:
+    post:
+      summary: Compare two or three repositories side by side
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repos]
+              properties:
+                repos:
+                  type: array
+                  minItems: 2
+                  maxItems: 3
+                  items:
+                    type: object
+                    required: [owner, repo]
+                    properties:
+                      owner:
+                        type: string
+                      repo:
+                        type: string
+      responses:
+        "200":
+          description: Comparison rows with health, merge rate, and snapshot deltas
         "502":
           description: GitHub API error

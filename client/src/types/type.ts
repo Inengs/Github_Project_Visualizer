@@ -66,10 +66,40 @@ export interface HealthBreakdown {
   color: string;
 }
 
+/** Mirrors GET/POST /analytics/repo/.../insights (health + narrative lines). */
 export interface HealthScore {
   repo_health_score: number;
   activity_trend: string;
   risk_signals: string[];
+  /** Heuristic sentences by default; replaced when OpenAI path succeeds. */
+  high_impact_insights: string[];
+  /** True when the last successful insight payload used the model for `high_impact_insights`. */
+  used_openai: boolean;
+}
+
+/** GET /analytics/repo/.../prediction */
+export interface ContributionPrediction {
+  trend_direction: string;
+  recent_weekly_avg: number;
+  prior_weekly_avg: number;
+  predicted_next_week_commits: number;
+  method_note: string;
+}
+
+export interface RepoCompareRow {
+  owner: string;
+  repo: string;
+  full_name: string;
+  stars: number;
+  forks: number;
+  language: string | null;
+  open_issues_count: number;
+  repo_health_score: number;
+  activity_trend: string;
+  merge_rate: number;
+  stars_delta_snapshot: number;
+  forks_delta_snapshot: number;
+  high_impact_preview: string;
 }
 
 export interface Contributor {
@@ -128,6 +158,7 @@ export interface RepoData {
   pullRequests: PullRequest[];
   activity: ActivityItem[];
   healthScore: HealthScore;
+  contributionPrediction: ContributionPrediction;
   languages: Language[];
 }
 
@@ -159,6 +190,11 @@ export type ReadmeExportFormat = "markdown" | "html" | "both";
 export interface GenerateReadmeOptions {
   template_id?: string;
   export_format?: ReadmeExportFormat;
+  use_openai?: boolean;
+  openai_api_key?: string | null;
+}
+
+export interface InsightsEnhanceOptions {
   use_openai?: boolean;
   openai_api_key?: string | null;
 }

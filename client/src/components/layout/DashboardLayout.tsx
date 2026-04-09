@@ -33,6 +33,7 @@ export default function DashboardLayout() {
     if (path === "/dashboard/pulls") return "Pull requests";
     if (path === "/dashboard/contributors") return "Contributors";
     if (path === "/dashboard/analytics") return "Analytics";
+    if (path === "/dashboard/compare") return "Compare";
     return "Overview";
   };
 

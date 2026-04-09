@@ -5,6 +5,7 @@ import {
   GitPullRequest,
   Users,
   BarChart2,
+  Scale,
   type LucideIcon,
 } from "lucide-react";
 
@@ -57,6 +58,11 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Analytics",
         icon: BarChart2,
         path: "/dashboard/analytics",
+      },
+      {
+        label: "Compare",
+        icon: Scale,
+        path: "/dashboard/compare",
       },
     ],
   },
